@@ -18,14 +18,14 @@
           <i class="fas fa-bars text-lg"></i>
         </button>
         
-        <div class="flex items-center space-x-2">
+        <%= link_to root_path, class: "flex items-center space-x-2 hover:opacity-75 transition-opacity duration-200" do %>
           <img src="/wested-logo.webp" alt="WestEd Logo" class="w-6 h-6">
           <h1 class="text-lg font-bold text-gray-900">Pondero</h1>
-        </div>
+        <% end %>
       </div>
       
       <div class="flex items-center space-x-3">
-        <div class="flex items-center space-x-2">
+        <%= link_to edit_user_registration_path, class: "flex items-center space-x-2 hover:opacity-75 transition-opacity duration-200" do %>
           <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
             <span class="text-white text-xs font-bold">
               <%= user&.first_name&.first || user&.email&.first&.upcase || "U" %>
@@ -34,7 +34,7 @@
           <span class="text-sm font-medium text-gray-900 hidden sm:block">
             <%= user&.first_name || "User" %>
           </span>
-        </div>
+        <% end %>
         
         <%= button_to destroy_user_session_path, method: :delete,
             class: "p-2 text-gray-400 hover:text-red-600 transition-colors duration-200 border-0 bg-transparent cursor-pointer",
@@ -49,7 +49,7 @@
     <!-- WestEd Branding integrated with navigation -->
     <div class="px-6 py-4 border-b border-gray-200">
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-3">
+        <%= link_to root_path, class: "flex items-center space-x-3 hover:opacity-75 transition-opacity duration-200" do %>
           <!-- Official WestEd Logo -->
           <div class="flex-shrink-0">
             <img src="/wested-logo.webp" alt="WestEd Logo" class="w-8 h-8">
@@ -59,7 +59,7 @@
             <h1 class="text-lg font-bold text-gray-900 leading-tight">Pondero</h1>
             <p class="text-xs text-gray-500 leading-tight">by WestEd</p>
           </div>
-        </div>
+        <% end %>
         
         <% if variant == :mobile_overlay %>
           <button id="mobile-sidebar-close" 
@@ -125,7 +125,7 @@
     
     <!-- User Profile Section -->
     <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 mt-auto">
-      <div class="flex items-center mb-3">
+      <%= link_to edit_user_registration_path, class: "flex items-center mb-3 hover:bg-gray-100 rounded-lg p-2 -m-2 transition-colors duration-200" do %>
         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
           <span class="text-white text-xs font-bold">
             <%= user&.first_name&.first || user&.email&.first&.upcase || "U" %>
@@ -138,7 +138,8 @@
             <%= user&.role&.titleize || "Member" %>
           </p>
         </div>
-      </div>
+        <i class="fas fa-edit text-gray-400 text-sm"></i>
+      <% end %>
       
       <%= button_to destroy_user_session_path, method: :delete,
           class: "flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg transition-all duration-200 border-0 bg-transparent cursor-pointer" do %>
