@@ -1,0 +1,132 @@
+<%# 
+  Dropdown Item Component
+  Reusable dropdown menu item with sophisticated styling
+%>
+
+<%= link_to path, 
+    class: dropdown_item_classes(local_assigns),
+    data: dropdown_item_data(local_assigns),
+    **dropdown_item_attributes(local_assigns) do %>
+  
+  <div class="dropdown-item-icon">
+    <%= icon %>
+  </div>
+  
+  <div class="dropdown-item-content">
+    <div class="dropdown-item-header">
+      <span class="dropdown-item-text"><%= text %></span>
+      
+      <% if local_assigns[:badge] %>
+        <span class="<%= dropdown_badge_classes(badge) %>">
+          <%= badge[:text] %>
+        </span>
+      <% end %>
+      
+      <% if local_assigns[:shortcut] %>
+        <kbd class="dropdown-item-shortcut">
+          <%= format_shortcut(shortcut) %>
+        </kbd>
+      <% end %>
+    </div>
+    
+    <% if local_assigns[:description] %>
+      <span class="dropdown-item-description">
+        <%= description %>
+      </span>
+    <% end %>
+  </div>
+  
+  <% if local_assigns[:has_submenu] %>
+    <div class="dropdown-item-arrow">
+      <%= heroicon("chevron-right", variant: :outline, class: "w-4 h-4") %>
+    </div>
+  <% end %>
+  
+<% end %>
+
+<%
+  def dropdown_item_classes(options)
+    base_classes = %w[dropdown-item]
+    
+    # State classes
+    base_classes << "dropdown-item-active" if options[:active]
+    base_classes << "dropdown-item-disabled" if options[:disabled]
+    
+    # Type classes
+    if options[:type]
+      base_classes << "dropdown-item-#{options[:type]}"
+    end
+    
+    # Danger state for destructive actions
+    base_classes << "dropdown-item-danger" if options[:danger]
+    
+    # Custom classes
+    base_classes << options[:class] if options[:class]
+    
+    base_classes.join(" ")
+  end
+
+  def dropdown_item_data(options)
+    data = {}
+    
+    # Turbo configuration
+    data[:turbo] = options.fetch(:turbo, true)
+    data[:turbo_method] = options[:method] if options[:method]
+    
+    # Analytics tracking
+    data[:analytics_event] = options[:analytics_event] if options[:analytics_event]
+    data[:analytics_category] = "dropdown_navigation"
+    
+    # Confirmation
+    data[:confirm] = options[:confirm] if options[:confirm]
+    
+    # Tooltip
+    data[:tooltip] = options[:tooltip] if options[:tooltip]
+    
+    data
+  end
+
+  def dropdown_item_attributes(options)
+    attrs = {}
+    
+    attrs[:title] = options[:title] if options[:title]
+    attrs[:target] = options[:target] if options[:target]
+    attrs[:rel] = options[:rel] if options[:rel]
+    
+    # Accessibility
+    attrs[:role] = options[:role] if options[:role]
+    attrs[:'aria-label'] = options[:aria_label] if options[:aria_label]
+    attrs[:'aria-describedby'] = options[:aria_describedby] if options[:aria_describedby]
+    
+    attrs
+  end
+
+  def dropdown_badge_classes(badge_config)
+    base_classes = %w[dropdown-badge inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium]
+    
+    case badge_config[:type]
+    when :success
+      base_classes += %w[bg-green-100 text-green-800]
+    when :warning
+      base_classes += %w[bg-yellow-100 text-yellow-800]
+    when :danger
+      base_classes += %w[bg-red-100 text-red-800]
+    when :info
+      base_classes += %w[bg-blue-100 text-blue-800]
+    else
+      base_classes += %w[bg-gray-100 text-gray-800]
+    end
+    
+    base_classes.join(" ")
+  end
+
+  def format_shortcut(shortcut)
+    # Format keyboard shortcuts nicely
+    shortcut.to_s
+            .gsub('cmd', '⌘')
+            .gsub('ctrl', '⌃')
+            .gsub('alt', '⌥')
+            .gsub('shift', '⇧')
+            .gsub('+', ' ')
+  end
+%>

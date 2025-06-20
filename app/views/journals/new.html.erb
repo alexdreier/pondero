@@ -1,0 +1,292 @@
+<% content_for :title, "Create New Journal" %>
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Header Section -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+      <!-- Navigation Breadcrumb -->
+      <div class="mb-6">
+        <%= link_to journals_path, class: "inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200" do %>
+          <i class="fas fa-arrow-left mr-3"></i>
+          <span class="text-lg font-medium">Back to Journals</span>
+        <% end %>
+      </div>
+
+      <!-- Page Title -->
+      <div>
+        <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+          <i class="fas fa-plus-circle text-blue-600 mr-4"></i>
+          Create New Journal
+        </h1>
+        <p class="text-lg text-gray-600 leading-relaxed max-w-4xl">
+          Build a reflective journaling experience for your students with customizable questions, privacy settings, and enterprise-grade features.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-6 py-8">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+      <%= form_with(model: @journal, local: true, class: "space-y-0") do |form| %>
+        
+        <!-- Error Messages -->
+        <% if @journal.errors.any? %>
+          <div class="px-8 py-6 border-b border-red-200 bg-red-50">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-xl text-red-600"></i>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-lg font-semibold text-red-800 mb-3">Please fix the following errors:</h3>
+                <ul class="space-y-2">
+                  <% @journal.errors.full_messages.each do |message| %>
+                    <li class="flex items-center text-red-700">
+                      <i class="fas fa-circle text-xs mr-3"></i>
+                      <span class="break-words"><%= message %></span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Basic Information Section -->
+        <div class="px-8 py-8 border-b border-gray-200">
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              <i class="fas fa-info-circle text-blue-600 mr-3"></i>
+              Basic Information
+            </h2>
+            <p class="text-gray-600">Define the core details of your journal</p>
+          </div>
+
+          <div class="space-y-8">
+            <!-- Title -->
+            <div>
+              <%= form.label :title, class: "block text-lg font-semibold text-gray-900 mb-3" do %>
+                <i class="fas fa-heading text-blue-600 mr-2"></i>
+                Title
+              <% end %>
+              <%= form.text_field :title, 
+                  class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200", 
+                  placeholder: "Enter a descriptive title for your journal" %>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <%= form.label :description, class: "block text-lg font-semibold text-gray-900 mb-3" do %>
+                <i class="fas fa-align-left text-blue-600 mr-2"></i>
+                Description
+              <% end %>
+              <%= form.text_area :description, 
+                  rows: 4, 
+                  class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none", 
+                  placeholder: "Describe the purpose, goals, and expectations for this journal" %>
+            </div>
+
+            <!-- Theme and Availability -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Theme -->
+              <div>
+                <%= form.label :theme_id, class: "block text-lg font-semibold text-gray-900 mb-3" do %>
+                  <i class="fas fa-palette text-blue-600 mr-2"></i>
+                  Theme
+                <% end %>
+                <%= form.select :theme_id, 
+                    options_from_collection_for_select(@themes, :id, :name, @journal.theme_id), 
+                    { prompt: "Select a theme (optional)" }, 
+                    { class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" } %>
+                <p class="text-gray-500 mt-2 leading-relaxed">Choose a visual theme for your journal</p>
+              </div>
+
+              <!-- Available From -->
+              <div>
+                <%= form.label :available_from, class: "block text-lg font-semibold text-gray-900 mb-3" do %>
+                  <i class="fas fa-calendar-plus text-blue-600 mr-2"></i>
+                  Available From
+                <% end %>
+                <%= form.datetime_local_field :available_from, 
+                    class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" %>
+                <p class="text-gray-500 mt-2 leading-relaxed">When students can start accessing this journal</p>
+              </div>
+            </div>
+
+            <!-- Available Until -->
+            <div>
+              <%= form.label :available_until, class: "block text-lg font-semibold text-gray-900 mb-3" do %>
+                <i class="fas fa-calendar-times text-blue-600 mr-2"></i>
+                Available Until (optional)
+              <% end %>
+              <%= form.datetime_local_field :available_until, 
+                  class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" %>
+              <p class="text-gray-500 mt-2 leading-relaxed">
+                <i class="fas fa-info-circle mr-1"></i>
+                Leave blank for no end date
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy & Access Settings Section -->
+        <div class="px-8 py-8 border-b border-gray-200 bg-gray-50">
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              <i class="fas fa-shield-alt text-green-600 mr-3"></i>
+              Privacy & Access Settings
+            </h2>
+            <p class="text-gray-600">Configure who can see and interact with this journal</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Visibility -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200">
+              <%= form.label :visibility, class: "block text-lg font-semibold text-gray-900 mb-4" do %>
+                <i class="fas fa-eye text-blue-600 mr-2"></i>
+                Visibility
+              <% end %>
+              <%= form.select :visibility, 
+                  options_for_select([
+                    ['Private - Only visible to me', 'private_access'],
+                    ['Public - Visible to all users', 'public_access'],
+                    ['Unlisted - Accessible via direct link', 'unlisted']
+                  ], @journal.visibility || 'private_access'),
+                  {},
+                  { class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" } %>
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-blue-800 text-sm leading-relaxed">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  Controls who can see this journal
+                </p>
+              </div>
+            </div>
+
+            <!-- Access Level -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200">
+              <%= form.label :access_level, class: "block text-lg font-semibold text-gray-900 mb-4" do %>
+                <i class="fas fa-key text-blue-600 mr-2"></i>
+                Access Level
+              <% end %>
+              <%= form.select :access_level, 
+                  options_for_select([
+                    ['Restricted - Only assigned users can respond', 'restricted'],
+                    ['Open - Anyone with access can respond', 'open'],
+                    ['Read Only - View only, limited response access', 'read_only']
+                  ], @journal.access_level || 'restricted'),
+                  {},
+                  { class: "w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" } %>
+              <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-green-800 text-sm leading-relaxed">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  Controls who can respond to questions
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enterprise Features Highlight -->
+        <div class="px-8 py-8 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">
+              <i class="fas fa-star text-yellow-500 mr-3"></i>
+              Enterprise Features Included
+            </h2>
+            <p class="text-gray-600">Your journal will automatically include these enterprise-grade capabilities</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+              <div class="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-save text-green-600 text-xl"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">Auto-Save</h4>
+                <p class="text-sm text-gray-600">30-second intervals</p>
+              </div>
+            </div>
+
+            <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+              <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">FERPA Compliant</h4>
+                <p class="text-sm text-gray-600">Secure & Private</p>
+              </div>
+            </div>
+
+            <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+              <div class="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-universal-access text-purple-600 text-xl"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">WCAG 2.1 AA</h4>
+                <p class="text-sm text-gray-600">Fully Accessible</p>
+              </div>
+            </div>
+
+            <div class="flex items-center p-4 bg-white rounded-lg border border-gray-200">
+              <div class="flex-shrink-0 w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-file-pdf text-orange-600 text-xl"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900">PDF Export</h4>
+                <p class="text-sm text-gray-600">Professional Reports</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="px-8 py-8">
+          <div class="flex flex-col sm:flex-row sm:justify-end gap-4">
+            <%= link_to journals_path, 
+                class: "inline-flex items-center justify-center px-8 py-4 bg-gray-100 text-gray-700 text-lg font-semibold rounded-lg hover:bg-gray-200 border-2 border-gray-300 transition-all duration-200" do %>
+              <i class="fas fa-times mr-3"></i>
+              Cancel
+            <% end %>
+            
+            <%= form.submit "Create Journal", 
+                class: "inline-flex items-center justify-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 shadow-sm transition-all duration-200 border-2 border-blue-600" do %>
+              <i class="fas fa-plus-circle mr-3"></i>
+              Create Journal
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </main>
+</div>
+
+<script>
+// Add form validation and enhanced UX
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  const submitButton = form.querySelector('input[type="submit"]');
+  
+  // Enhanced form submission with loading state
+  form.addEventListener('submit', function(e) {
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.value = 'Creating Journal...';
+      submitButton.classList.add('opacity-75');
+    }
+  });
+  
+  // Real-time validation feedback
+  const titleField = document.getElementById('journal_title');
+  if (titleField) {
+    titleField.addEventListener('blur', function() {
+      if (this.value.length < 3) {
+        this.classList.add('border-red-300');
+        this.classList.remove('border-gray-300');
+      } else {
+        this.classList.remove('border-red-300');
+        this.classList.add('border-gray-300');
+      }
+    });
+  }
+});
+</script>

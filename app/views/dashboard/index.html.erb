@@ -1,0 +1,743 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Page Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="md:flex md:items-center md:justify-between">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold leading-7 sm:text-3xl sm:truncate text-header" style="color: var(--wested-dark);">
+              Welcome back, <%= current_user.display_name %>
+            </h1>
+            <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                </svg>
+                <%= Date.current.strftime('%A, %B %d, %Y') %>
+              </div>
+              <div class="mt-2 flex items-center text-sm text-gray-500">
+                <div class="flex items-center">
+                  <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  <span class="badge badge-success"><%= current_user.role&.humanize || 'User' %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex md:mt-0 md:ml-4">
+            <% case current_user.role %>
+            <% when 'instructor' %>
+              <%= link_to new_journal_path, class: "btn btn-primary" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Create Journal
+              <% end %>
+            <% when 'administrator' %>
+              <%= link_to admin_users_path, class: "btn btn-secondary mr-3" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+                Manage Users
+              <% end %>
+              <%= link_to new_journal_path, class: "btn btn-primary" do %>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Create Journal
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <% case current_user.role %>
+      <% when 'learner' %>
+        <!-- Learner Dashboard -->
+        <div class="grid gap-6 lg:grid-cols-12">
+          <!-- Main Content Area -->
+          <div class="lg:col-span-8 space-y-6">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <i class="fas fa-book-open text-2xl text-blue-600"></i>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Available Journals</p>
+                    <p class="text-2xl font-semibold text-gray-900"><%= @available_journals&.count || 0 %></p>
+                    <p class="text-xs text-gray-400">New this week: <%= @new_journals_this_week || 2 %></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Completed</p>
+                    <p class="text-2xl font-semibold text-gray-900"><%= @recent_submissions&.select(&:submitted?)&.count || 0 %></p>
+                    <%= link_to "View All", journals_path, class: "text-xs text-blue-600 hover:text-blue-800" %>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <i class="fas fa-clock text-2xl text-purple-600"></i>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">In Progress</p>
+                    <p class="text-2xl font-semibold text-gray-900"><%= @recent_submissions&.reject(&:submitted?)&.count || 0 %></p>
+                    <p class="text-xs text-gray-400">Continue your work</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Available Journals -->
+            <div class="card">
+              <div class="card-header">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-medium text-gray-900">Available Journals</h2>
+                  <%= link_to journals_path, class: "btn btn-secondary text-sm" do %>
+                    View All
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+              <div class="card-body">
+                <% if @available_journals&.any? %>
+                  <div class="space-y-4">
+                    <% @available_journals.each do |journal| %>
+                      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="flex-1">
+                          <%= link_to journal, class: "block" do %>
+                            <h3 class="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors duration-200">
+                              <%= journal.title %>
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                              <%= truncate(strip_tags(journal.description), length: 120) %>
+                            </p>
+                          <% end %>
+                        </div>
+                        <div class="ml-4 flex-shrink-0">
+                          <%= link_to journal, class: "btn btn-primary btn-sm" do %>
+                            Start
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-center py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No journals available</h3>
+                    <p class="mt-1 text-sm text-gray-500">Check back later for new reflection opportunities.</p>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="lg:col-span-4 space-y-6">
+            <!-- Progress Overview -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">My Progress</h2>
+              </div>
+              <div class="card-body">
+                <% if @recent_submissions&.any? %>
+                  <div class="space-y-4">
+                    <% @recent_submissions.each do |submission| %>
+                      <div class="flex items-center justify-between">
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-gray-900 truncate">
+                            <%= submission.journal.title %>
+                          </p>
+                          <div class="mt-1 flex items-center">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2 mr-3">
+                              <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                                   style="width: <%= submission.completion_percentage %>%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 font-medium">
+                              <%= submission.completion_percentage %>%
+                            </span>
+                          </div>
+                        </div>
+                        <div class="ml-4">
+                          <span class="badge <%= submission.submitted? ? 'badge-success' : 'badge-warning' %>">
+                            <%= submission.status.humanize %>
+                          </span>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-center py-6">
+                    <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">No progress to show yet.</p>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">Quick Actions</h2>
+              </div>
+              <div class="card-body">
+                <div class="space-y-3">
+                  <%= link_to journals_path, class: "flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+                    <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    Browse All Journals
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <% when 'instructor' %>
+        <!-- Instructor Dashboard -->
+        <div class="grid gap-6 lg:grid-cols-12">
+          <!-- Main Content -->
+          <div class="lg:col-span-8 space-y-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="card">
+                <div class="card-body">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <p class="text-sm font-medium text-gray-500">My Journals</p>
+                      <p class="text-2xl font-semibold text-gray-900"><%= @my_journals&.count || 0 %></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-body">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <p class="text-sm font-medium text-gray-500">Published</p>
+                      <p class="text-2xl font-semibold text-gray-900">
+                        <%= @my_journals&.select(&:published?)&.count || 0 %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-body">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <p class="text-sm font-medium text-gray-500">Student Submissions</p>
+                      <p class="text-2xl font-semibold text-gray-900">
+                        <%= @recent_submissions&.count || 0 %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- My Journals -->
+            <div class="card">
+              <div class="card-header">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-medium text-gray-900">My Journals</h2>
+                  <div class="flex space-x-2">
+                    <%= link_to templates_journals_path, class: "btn btn-secondary text-sm" do %>
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                      </svg>
+                      Templates
+                    <% end %>
+                    <%= link_to new_journal_path, class: "btn btn-primary text-sm" do %>
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      </svg>
+                      Create New
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <% if @my_journals&.any? %>
+                  <div class="space-y-4">
+                    <% @my_journals.each do |journal| %>
+                      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                        <div class="flex-1">
+                          <%= link_to journal, class: "block" do %>
+                            <div class="flex items-center">
+                              <h3 class="text-base font-medium text-gray-900 hover:text-blue-600 transition-colors duration-200">
+                                <%= journal.title %>
+                              </h3>
+                              <span class="ml-3 badge <%= journal.published? ? 'badge-success' : 'badge-warning' %>">
+                                <%= journal.published? ? 'Published' : 'Draft' %>
+                              </span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                              <%= truncate(strip_tags(journal.description), length: 120) %>
+                            </p>
+                          <% end %>
+                        </div>
+                        <div class="ml-4 flex-shrink-0">
+                          <%= link_to journal, class: "btn btn-secondary btn-sm" do %>
+                            Manage
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-center py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No journals created yet</h3>
+                    <p class="mt-1 text-sm text-gray-500">Get started by creating your first journal.</p>
+                    <div class="mt-4">
+                      <%= link_to new_journal_path, class: "btn btn-primary" do %>
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Create Journal
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="lg:col-span-4 space-y-6">
+            <!-- Recent Activity -->
+            <div class="card">
+              <div class="card-header">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-lg font-medium text-gray-900">Recent Student Activity</h2>
+                  <%= link_to analytics_path, class: "btn btn-secondary text-sm" do %>
+                    View Analytics
+                  <% end %>
+                </div>
+              </div>
+              <div class="card-body">
+                <% if @recent_submissions&.any? %>
+                  <div class="space-y-4">
+                    <% @recent_submissions.each do |submission| %>
+                      <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                          <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <span class="text-white text-xs font-medium">
+                              <%= submission.user.first_name&.first&.upcase || submission.user.email.first.upcase %>
+                            </span>
+                          </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-gray-900 truncate">
+                            <%= submission.user.display_name %>
+                          </p>
+                          <p class="text-sm text-gray-500 truncate">
+                            <%= submission.journal.title %>
+                          </p>
+                          <p class="text-xs text-gray-400">
+                            <%= time_ago_in_words(submission.updated_at) %> ago
+                          </p>
+                        </div>
+                        <div class="flex-shrink-0">
+                          <span class="badge <%= submission.submitted? ? 'badge-success' : 'badge-warning' %>">
+                            <%= submission.status.humanize %>
+                          </span>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <div class="text-center py-6">
+                    <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">No student activity yet.</p>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">Quick Actions</h2>
+              </div>
+              <div class="card-body">
+                <div class="space-y-3">
+                  <%= link_to new_journal_path, class: "flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+                    <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Create New Journal
+                  <% end %>
+                  <%= link_to templates_journals_path, class: "flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+                    <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
+                    Browse Templates
+                  <% end %>
+                  <%= link_to analytics_path, class: "flex items-center p-3 text-sm text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+                    <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    View Analytics
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <% when 'administrator' %>
+        <!-- Admin Dashboard -->
+        <div class="space-y-6">
+          <!-- Admin Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Users</p>
+                    <p class="text-2xl font-semibold text-gray-900"><%= @total_users || 0 %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Journals</p>
+                    <p class="text-2xl font-semibold text-gray-900"><%= @total_journals || 0 %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Submissions</p>
+                    <p class="text-2xl font-semibold text-gray-900"><%= @total_submissions || 0 %></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">System Health</p>
+                    <p class="text-2xl font-semibold text-green-600">Excellent</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="card hover:shadow-lg transition-shadow duration-200">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">User Management</h3>
+                    <p class="text-sm text-gray-500">Manage users, roles, and permissions</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <%= link_to admin_users_path, class: "btn btn-primary w-full" do %>
+                    Manage Users
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card hover:shadow-lg transition-shadow duration-200">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">System Analytics</h3>
+                    <p class="text-sm text-gray-500">View comprehensive system metrics</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <%= link_to analytics_path, class: "btn btn-primary w-full" do %>
+                    View Analytics
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card hover:shadow-lg transition-shadow duration-200">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">Theme Management</h3>
+                    <p class="text-sm text-gray-500">Customize system appearance</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <%= link_to themes_path, class: "btn btn-primary w-full" do %>
+                    Manage Themes
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card hover:shadow-lg transition-shadow duration-200">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">Create Journal</h3>
+                    <p class="text-sm text-gray-500">Create new reflective journals</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <%= link_to new_journal_path, class: "btn btn-primary w-full" do %>
+                    Create Journal
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card hover:shadow-lg transition-shadow duration-200">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">Journal Templates</h3>
+                    <p class="text-sm text-gray-500">Browse and manage templates</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <%= link_to templates_journals_path, class: "btn btn-primary w-full" do %>
+                    Browse Templates
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card hover:shadow-lg transition-shadow duration-200">
+              <div class="card-body">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-medium text-gray-900">All Journals</h3>
+                    <p class="text-sm text-gray-500">View and manage all journals</p>
+                  </div>
+                </div>
+                <div class="mt-4">
+                  <%= link_to journals_path, class: "btn btn-primary w-full" do %>
+                    View All Journals
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <% if @recent_activity&.any? %>
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-lg font-medium text-gray-900">Recent System Activity</h2>
+              </div>
+              <div class="card-body">
+                <div class="flow-root">
+                  <ul class="-mb-8">
+                    <% @recent_activity.each_with_index do |submission, index| %>
+                      <li>
+                        <div class="relative pb-8">
+                          <% unless index == @recent_activity.length - 1 %>
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                          <% end %>
+                          <div class="relative flex space-x-3">
+                            <div>
+                              <span class="h-8 w-8 rounded-full 
+                                <%= submission.submitted? ? 'bg-green-500' : 'bg-yellow-400' %> 
+                                flex items-center justify-center ring-8 ring-white">
+                                <% if submission.submitted? %>
+                                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                  </svg>
+                                <% else %>
+                                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                  </svg>
+                                <% end %>
+                              </span>
+                            </div>
+                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                              <div>
+                                <p class="text-sm text-gray-500">
+                                  <strong class="font-medium text-gray-900"><%= submission.user.display_name %></strong>
+                                  <%= submission.submitted? ? 'submitted' : 'updated' %>
+                                  <strong class="font-medium text-gray-900"><%= submission.journal.title %></strong>
+                                </p>
+                                <p class="text-xs text-gray-400">
+                                  Completion: <%= submission.completion_percentage %>%
+                                </p>
+                              </div>
+                              <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                <%= time_ago_in_words(submission.updated_at) %> ago
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+      <% end %>
+    </div>
+  </main>
+</div>

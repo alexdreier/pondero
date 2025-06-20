@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pondero - Enterprise Reflective Journaling Platform</title>
+  <meta name="csrf-param" content="authenticity_token" />
+  <meta name="csrf-token" content="<%= form_authenticity_token %>" />
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .left-panel {
+      background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+      color: #ffffff;
+    }
+    
+    .left-panel h1,
+    .left-panel h2,
+    .left-panel h3,
+    .left-panel p,
+    .left-panel span,
+    .left-panel div {
+      color: #ffffff !important;
+    }
+    
+    .feature-card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .feature-card h3 {
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    
+    .feature-card p {
+      color: #ffffff !important;
+      opacity: 0.9;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .login-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      padding: 48px;
+    }
+    
+    .login-card h1,
+    .login-card h2,
+    .login-card h3,
+    .login-card h4,
+    .login-card h5,
+    .login-card h6,
+    .login-card p,
+    .login-card span,
+    .login-card div,
+    .login-card label {
+      color: #111827 !important;
+    }
+    
+    .demo-box {
+      background: #dbeafe;
+      border: 1px solid #60a5fa;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    
+    .demo-box h4 {
+      color: #1e40af !important;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .demo-box div {
+      color: #1e40af !important;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+      color: #ffffff !important;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #111827 !important;
+      background: #ffffff;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-label {
+      display: block;
+      color: #374151 !important;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .link {
+      color: #2563eb !important;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .link:hover {
+      color: #1d4ed8 !important;
+      text-decoration: underline;
+    }
+    
+    .text-muted {
+      color: #6b7280 !important;
+    }
+    
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+
+<body>
+  <div style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; z-index: 1000;">
+    <!-- Left Panel - Features -->
+    <div class="left-panel" style="width: 75%; padding: 48px; display: flex; flex-direction: column; justify-content: center;">
+      <!-- WestEd Logo & Branding -->
+      <div style="margin-bottom: 48px;">
+        <div style="display: flex; align-items: center; margin-bottom: 24px;">
+          <!-- Official WestEd Logo -->
+          <div style="width: 80px; height: 80px; background: #ffffff; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-right: 24px; box-shadow: 0 15px 35px -12px rgba(0, 0, 0, 0.3); padding: 12px;">
+            <img src="/wested-logo.webp" alt="WestEd Logo" style="width: 56px; height: 56px;">
+          </div>
+          <div>
+            <h1 style="font-size: 36px; font-weight: 700; margin: 0; color: #ffffff !important;">Pondero</h1>
+            <p style="font-size: 16px; margin: 0; color: #ffffff !important; opacity: 0.9;">by WestEd</p>
+          </div>
+        </div>
+        
+        <div>
+          <h2 style="font-size: 28px; font-weight: 600; margin-bottom: 12px; color: #ffffff !important;">Enterprise Reflective Journaling Platform</h2>
+          <p style="font-size: 18px; line-height: 1.6; color: #ffffff !important; opacity: 0.9;">
+            Empowering educators and learners with secure, accessible, and intelligent reflection tools designed for institutional scale.
+          </p>
+        </div>
+      </div>
+
+      <!-- Feature Cards -->
+      <div style="display: grid; gap: 24px;">
+        <div class="feature-card floating">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div style="width: 32px; height: 32px; background: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+              <i class="fas fa-shield-alt" style="color: #ffffff; font-size: 16px;"></i>
+            </div>
+            <h3>FERPA Compliant</h3>
+          </div>
+          <p>Secure data handling with comprehensive audit trails and privacy protection for educational institutions.</p>
+        </div>
+
+        <div class="feature-card floating" style="animation-delay: -2s;">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div style="width: 32px; height: 32px; background: #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+              <i class="fas fa-bolt" style="color: #ffffff; font-size: 16px;"></i>
+            </div>
+            <h3>Auto-Save Technology</h3>
+          </div>
+          <p>Never lose work with intelligent auto-save every 30 seconds and complete offline support.</p>
+        </div>
+
+        <div class="feature-card floating" style="animation-delay: -4s;">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div style="width: 32px; height: 32px; background: #8b5cf6; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+              <i class="fas fa-universal-access" style="color: #ffffff; font-size: 16px;"></i>
+            </div>
+            <h3>WCAG 2.1 AA Accessible</h3>
+          </div>
+          <p>Full accessibility compliance with screen reader support and comprehensive keyboard navigation.</p>
+        </div>
+
+        <div class="feature-card floating" style="animation-delay: -6s;">
+          <div style="display: flex; align-items: center; margin-bottom: 12px;">
+            <div style="width: 32px; height: 32px; background: #f59e0b; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+              <i class="fas fa-plug" style="color: #ffffff; font-size: 16px;"></i>
+            </div>
+            <h3>Canvas LTI Integration</h3>
+          </div>
+          <p>Seamless single sign-on integration with Canvas and other leading LMS platforms.</p>
+        </div>
+      </div>
+
+      <!-- Trust Indicators -->
+      <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; color: #ffffff !important; opacity: 0.8;">
+          <span>Trusted by 500+ Institutions</span>
+          <span>99.9% Uptime SLA</span>
+          <span>SOC 2 Certified</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel - Login Form -->
+    <div style="width: 25%; padding: 48px; display: flex; flex-direction: column; justify-content: center; background: #f9fafb;">
+      <div style="max-width: 400px; margin: 0 auto; width: 100%;">
+        <!-- Login Card -->
+        <div class="login-card">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Welcome Back</h2>
+            <p style="font-size: 16px; color: #6b7280 !important;">Sign in to your Pondero account</p>
+          </div>
+
+          <!-- Demo Account Helper -->
+          <div class="demo-box" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <i class="fas fa-info-circle" style="color: #2563eb; margin-right: 8px;"></i>
+              <h4>Demo Accounts</h4>
+            </div>
+            <div style="display: grid; gap: 4px;">
+              <div><strong>Student:</strong> learner@pondero.demo</div>
+              <div><strong>Instructor:</strong> instructor@pondero.demo</div>
+              <div><strong>Admin:</strong> admin@pondero.demo</div>
+              <div style="margin-top: 8px;"><strong>Password:</strong> demo123456</div>
+            </div>
+          </div>
+
+          <!-- Login Form -->
+          <%= form_for(resource, as: resource_name, url: session_path(resource_name), local: true) do |f| %>
+            <div style="margin-bottom: 20px;">
+              <label class="form-label">Email</label>
+              <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+                  class: "form-input", placeholder: "Enter your email address" %>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+              <label class="form-label">Password</label>
+              <%= f.password_field :password, autocomplete: "current-password",
+                  class: "form-input", placeholder: "Enter your password" %>
+            </div>
+
+            <% if devise_mapping.rememberable? %>
+              <div style="margin-bottom: 24px; display: flex; align-items: center;">
+                <%= f.check_box :remember_me, style: "margin-right: 8px;" %>
+                <label style="font-size: 14px; color: #374151 !important;">Remember me for 30 days</label>
+              </div>
+            <% end %>
+
+            <div style="margin-bottom: 24px;">
+              <%= f.submit "Sign In", class: "btn-primary", style: "width: 100%;" %>
+            </div>
+          <% end %>
+
+          <!-- Additional Links -->
+          <div style="text-align: center;">
+            <div style="margin-bottom: 16px;">
+              <% if devise_mapping.recoverable? %>
+                <%= link_to "Forgot password?", new_password_path(resource_name), class: "link" %>
+              <% end %>
+            </div>
+            
+            <% if devise_mapping.registerable? %>
+              <div>
+                <%= link_to "Create new account", new_registration_path(resource_name), class: "link" %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Enterprise Features Footer -->
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: center; font-size: 12px;">
+              <div>
+                <div style="font-weight: 600; color: #10b981 !important;">✓ FERPA Compliant</div>
+                <div style="color: #6b7280 !important;">Secure & Private</div>
+              </div>
+              <div>
+                <div style="font-weight: 600; color: #3b82f6 !important;">✓ Auto-Save</div>
+                <div style="color: #6b7280 !important;">Never Lose Work</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 32px; text-align: center;">
+          <p style="color: #ffffff !important; font-size: 14px; opacity: 0.9;">
+            Powered by WestEd • 
+            <a href="https://www.wested.org" style="color: #ffffff !important; text-decoration: underline;">Learn More</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

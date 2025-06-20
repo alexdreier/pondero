@@ -1,0 +1,111 @@
+<%# 
+  Navigation Item Component
+  Individual navigation link with sophisticated state management
+%>
+
+<%= link_to item[:path], 
+    class: navigation_item_classes(item, variant, current_path),
+    data: navigation_item_data(item),
+    **navigation_item_attributes(item) do %>
+  
+  <% if item[:icon] %>
+    <div class="nav-item-icon">
+      <%= item[:icon] %>
+    </div>
+  <% end %>
+  
+  <span class="nav-item-text"><%= item[:text] %></span>
+  
+  <% if item[:badge] %>
+    <span class="<%= badge_classes(item[:badge]) %>">
+      <%= item[:badge][:text] %>
+    </span>
+  <% end %>
+  
+  <% if item[:submenu] %>
+    <div class="nav-item-arrow">
+      <%= heroicon("chevron-right", variant: :outline, class: "w-4 h-4") %>
+    </div>
+  <% end %>
+  
+<% end %>
+
+<% if item[:submenu] && item_active?(item, current_path) %>
+  <div class="nav-submenu">
+    <% item[:submenu].each do |subitem| %>
+      <%= render 'shared/navigation_item', 
+          item: subitem, 
+          variant: :submenu,
+          current_path: current_path %>
+    <% end %>
+  </div>
+<% end %>
+
+<%
+  def navigation_item_classes(item, variant, current_path)
+    base_classes = %w[nav-item]
+    
+    # State classes
+    base_classes << "active" if item_active?(item, current_path)
+    base_classes << "nav-item-#{variant}" if variant != :desktop
+    
+    # Type-specific classes
+    if item[:type]
+      base_classes << "nav-item-#{item[:type]}"
+    end
+    
+    # Custom classes
+    base_classes << item[:class] if item[:class]
+    
+    base_classes.join(" ")
+  end
+
+  def navigation_item_data(item)
+    data = { turbo: item.fetch(:turbo, true) }
+    data[:analytics] = item[:analytics] if item[:analytics]
+    data[:tooltip] = item[:tooltip] if item[:tooltip]
+    data
+  end
+
+  def navigation_item_attributes(item)
+    attrs = {}
+    attrs[:title] = item[:title] if item[:title]
+    attrs[:target] = item[:target] if item[:target]
+    attrs
+  end
+
+  def item_active?(item, current_path)
+    return true if item[:path] == current_path
+    
+    # Handle nested routes
+    if item[:active_paths]
+      return item[:active_paths].any? { |path| current_path.start_with?(path) }
+    end
+    
+    # Handle controller/action matching
+    if item[:controller] && item[:action]
+      return controller_name == item[:controller] && action_name == item[:action]
+    end
+    
+    false
+  end
+
+  def badge_classes(badge_config)
+    base_classes = %w[nav-badge inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium]
+    
+    case badge_config[:type]
+    when :success
+      base_classes += %w[bg-green-100 text-green-800]
+    when :warning
+      base_classes += %w[bg-yellow-100 text-yellow-800]
+    when :danger
+      base_classes += %w[bg-red-100 text-red-800]
+    when :info
+      base_classes += %w[bg-blue-100 text-blue-800]
+    else
+      base_classes += %w[bg-gray-100 text-gray-800]
+    end
+    
+    base_classes.join(" ")
+  end
+%>

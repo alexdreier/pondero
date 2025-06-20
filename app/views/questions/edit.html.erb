@@ -1,0 +1,130 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <h1 class="text-3xl font-bold text-gray-900">Edit Question</h1>
+        <%= link_to "← Back to Journal", @journal, class: "text-blue-600 hover:text-blue-800" %>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+      <%= form_with(model: [@journal, @question], local: true, class: "space-y-6") do |form| %>
+        <% if @question.errors.any? %>
+          <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <h3 class="text-red-800 font-medium">Please fix the following errors:</h3>
+            <ul class="mt-2 text-red-700 text-sm list-disc list-inside">
+              <% @question.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.label :content, "Question Text", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.rich_text_area :content, class: "trix-content", placeholder: "Enter your question here..." %>
+        </div>
+
+        <div>
+          <%= form.label :description, "Additional Description (Optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.rich_text_area :description, class: "trix-content", placeholder: "Add any additional instructions or context..." %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <%= form.label :question_type, "Question Type", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :question_type, 
+                           options_for_select(Question::QUESTION_TYPES.map { |type| [type.humanize, type] }, @question.question_type),
+                           { prompt: "Select question type" },
+                           { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+                             id: "question_type_select",
+                             onchange: "toggleOptionsField()" } %>
+          </div>
+
+          <div>
+            <%= form.label :section_id, "Section (Optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :section_id, 
+                           options_from_collection_for_select(@sections, :id, :display_title, @question.section_id),
+                           { prompt: "No section (standalone)" },
+                           { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+          </div>
+
+          <div>
+            <%= form.label :position, "Position", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :position, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", min: 1 %>
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <%= form.check_box :required, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+          <%= form.label :required, "Required question", class: "ml-2 block text-sm text-gray-900" %>
+        </div>
+
+        <!-- Options field for questions that need them -->
+        <div id="options_field" class="<%= @question.requires_options? ? '' : 'hidden' %>">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Answer Options</label>
+          <div id="options_container">
+            <% (@question.options_array.present? ? @question.options_array : [""]).each_with_index do |option, index| %>
+              <div class="flex items-center mb-2 option-row">
+                <input type="text" name="question[options_array][]" value="<%= option %>" 
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mr-2"
+                       placeholder="Option <%= index + 1 %>">
+                <button type="button" onclick="removeOption(this)" class="px-2 py-1 text-red-600 hover:text-red-800">Remove</button>
+              </div>
+            <% end %>
+          </div>
+          <button type="button" onclick="addOption()" class="px-3 py-2 text-blue-600 border border-blue-300 rounded-md hover:bg-blue-50 text-sm">
+            Add Option
+          </button>
+          <p class="text-sm text-gray-500 mt-2">Add options for multiple choice, ranking, or Likert scale questions.</p>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <%= link_to "Cancel", @journal, class: "px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50" %>
+          <%= form.submit "Update Question", class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" %>
+        </div>
+      <% end %>
+    </div>
+  </main>
+</div>
+
+<script>
+function toggleOptionsField() {
+  const questionType = document.getElementById('question_type_select').value;
+  const optionsField = document.getElementById('options_field');
+  const needsOptions = ['choice', 'ranking', 'multiple_response', 'likert_scale'].includes(questionType);
+  
+  if (needsOptions) {
+    optionsField.classList.remove('hidden');
+  } else {
+    optionsField.classList.add('hidden');
+  }
+}
+
+function addOption() {
+  const container = document.getElementById('options_container');
+  const optionCount = container.querySelectorAll('.option-row').length + 1;
+  
+  const newRow = document.createElement('div');
+  newRow.className = 'flex items-center mb-2 option-row';
+  newRow.innerHTML = `
+    <input type="text" name="question[options_array][]" 
+           class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mr-2"
+           placeholder="Option ${optionCount}">
+    <button type="button" onclick="removeOption(this)" class="px-2 py-1 text-red-600 hover:text-red-800">Remove</button>
+  `;
+  
+  container.appendChild(newRow);
+}
+
+function removeOption(button) {
+  button.parentElement.remove();
+}
+
+// Initialize the options field visibility
+document.addEventListener('DOMContentLoaded', function() {
+  toggleOptionsField();
+});
+</script>

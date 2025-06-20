@@ -1,0 +1,95 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <h1 class="text-3xl font-bold text-gray-900">Edit Journal</h1>
+        <%= link_to "← Back to Journal", @journal, class: "text-blue-600 hover:text-blue-800" %>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+      <%= form_with(model: @journal, local: true, class: "space-y-6") do |form| %>
+        <% if @journal.errors.any? %>
+          <div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <h3 class="text-red-800 font-medium">Please fix the following errors:</h3>
+            <ul class="mt-2 text-red-700 text-sm list-disc list-inside">
+              <% @journal.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.label :title, class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_field :title, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Enter journal title" %>
+        </div>
+
+        <div>
+          <%= form.label :description, class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.text_area :description, rows: 4, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder: "Describe the purpose and goals of this journal" %>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= form.label :theme_id, "Theme", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :theme_id, options_from_collection_for_select(@themes, :id, :name, @journal.theme_id), 
+                           { prompt: "Select a theme (optional)" }, 
+                           { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+          </div>
+
+          <div>
+            <%= form.label :available_from, "Available From", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.datetime_local_field :available_from, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
+          </div>
+        </div>
+
+        <div>
+          <%= form.label :available_until, "Available Until (optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+          <%= form.datetime_local_field :available_until, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" %>
+          <p class="text-sm text-gray-500 mt-1">Leave blank for no end date</p>
+        </div>
+
+        <!-- Privacy & Access Settings -->
+        <div class="border-t border-gray-200 pt-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Privacy & Access Settings</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :visibility, "Visibility", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.select :visibility, 
+                             options_for_select([
+                               ['Private - Only visible to me', 'private'],
+                               ['Public - Visible to all users', 'public'],
+                               ['Unlisted - Accessible via direct link', 'unlisted']
+                             ], @journal.visibility),
+                             {},
+                             { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+              <p class="text-sm text-gray-500 mt-1">Controls who can see this journal</p>
+            </div>
+
+            <div>
+              <%= form.label :access_level, "Access Level", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.select :access_level, 
+                             options_for_select([
+                               ['Restricted - Only assigned users can respond', 'restricted'],
+                               ['Open - Anyone with access can respond', 'open'],
+                               ['Read Only - View only, limited response access', 'read_only']
+                             ], @journal.access_level),
+                             {},
+                             { class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" } %>
+              <p class="text-sm text-gray-500 mt-1">Controls who can respond to questions</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-3">
+          <%= link_to "Cancel", @journal, class: "px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50" %>
+          <%= form.submit "Update Journal", class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" %>
+        </div>
+      <% end %>
+    </div>
+  </main>
+</div>

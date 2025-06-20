@@ -1,0 +1,116 @@
+<%# 
+  WestEd Navigation Component
+  Enterprise-grade Rails partial for consistent navigation
+  
+  Parameters:
+  - variant: Symbol (:desktop, :mobile, :sidebar)
+  - user: Current user object
+%>
+
+<nav class="<%= wested_navigation_classes(variant) %>" data-component="wested-navigation">
+  
+  <!-- Combined Header & Navigation -->
+  <div class="<%= navigation_content_classes(variant) %>">
+    <!-- WestEd Branding integrated with navigation -->
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <!-- Official WestEd Logo -->
+          <div class="flex-shrink-0">
+            <img src="/wested-logo.webp" alt="WestEd Logo" class="w-8 h-8">
+          </div>
+          
+          <div>
+            <h1 class="text-lg font-bold text-gray-900 leading-tight">Pondero</h1>
+            <p class="text-xs text-gray-500 leading-tight">by WestEd</p>
+          </div>
+        </div>
+        
+        <% if variant == :mobile_overlay %>
+          <button id="mobile-sidebar-close" 
+                  class="p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                  data-action="close-sidebar">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Navigation Links -->
+    <div class="px-6 py-4 space-y-1">
+      
+      <!-- Main Navigation Items -->
+      <% navigation_items_for_user(user).each do |item| %>
+        <a href="<%= item[:path] %>" 
+           class="group flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200
+                  <%= request.path == item[:path] ? 'bg-blue-100 text-blue-900 border border-blue-200' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' %>">
+          <span class="mr-3 text-base w-4 flex justify-center"><%= item[:icon] %></span>
+          <span class="break-words"><%= item[:text] %></span>
+        </a>
+      <% end %>
+      
+      <!-- Management Section for Instructors/Admins -->
+      <% if user&.instructor? || user&.administrator? %>
+        <div class="mt-6 pt-4 border-t border-gray-200">
+          <h4 class="px-4 pb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <i class="fas fa-cogs mr-2"></i>
+            Management
+          </h4>
+          <div class="space-y-1">
+            <% instructor_navigation_items.each do |item| %>
+              <a href="<%= item[:path] %>" 
+                 class="group flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200">
+                <span class="mr-3 text-base w-4 flex justify-center"><%= item[:icon] %></span>
+                <span class="break-words"><%= item[:text] %></span>
+              </a>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      
+      <!-- Administration Section for Admins -->
+      <% if user&.administrator? %>
+        <div class="mt-6 pt-4 border-t border-gray-200">
+          <h4 class="px-4 pb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <i class="fas fa-shield-alt mr-2"></i>
+            Administration
+          </h4>
+          <div class="space-y-1">
+            <% admin_navigation_items.each do |item| %>
+              <a href="<%= item[:path] %>" 
+                 class="group flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200">
+                <span class="mr-3 text-base w-4 flex justify-center"><%= item[:icon] %></span>
+                <span class="break-words"><%= item[:text] %></span>
+              </a>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- User Profile Section -->
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 mt-auto">
+      <div class="flex items-center mb-3">
+        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+          <span class="text-white text-xs font-bold">
+            <%= user&.first_name&.first || user&.email&.first&.upcase || "U" %>
+          </span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-gray-900 break-words"><%= user&.display_name || "User" %></p>
+          <p class="text-xs text-gray-500 break-words">
+            <i class="fas fa-user-tag mr-1"></i>
+            <%= user&.role&.titleize || "Member" %>
+          </p>
+        </div>
+      </div>
+      
+      <%= button_to destroy_user_session_path, method: :delete,
+          class: "flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg transition-all duration-200 border-0 bg-transparent cursor-pointer" do %>
+        <i class="fas fa-sign-out-alt mr-2 text-red-500"></i>
+        <span>Sign Out</span>
+      <% end %>
+    </div>
+  </div>
+  
+</nav>

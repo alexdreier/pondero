@@ -1,0 +1,286 @@
+<% content_for :title, "Analytics Dashboard" %>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+      <p class="mt-2 text-gray-600">Comprehensive insights and reporting for Pondero</p>
+      
+      <div class="mt-4 flex space-x-3">
+        <%= link_to "User Analytics", user_analytics_analytics_path, 
+                    class: "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" %>
+        <%= link_to "Journal Analytics", journal_analytics_analytics_path, 
+                    class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700" %>
+        <%= link_to "Export Report", export_analytics_path(format: :csv), 
+                    class: "px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700" %>
+      </div>
+    </div>
+
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+      <%= link_to user_analytics_analytics_path, class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
+                <i class="fas fa-users text-white text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @overview_stats[:total_users] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= link_to journal_analytics_analytics_path, class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
+                <i class="fas fa-book text-white text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Journals</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @overview_stats[:total_journals] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= link_to analytics_path + "#submissions", class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center">
+                <i class="fas fa-file-alt text-white text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Submissions</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @overview_stats[:total_submissions] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= link_to analytics_path + "#responses", class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-teal-600 rounded-md flex items-center justify-center">
+                <i class="fas fa-comments text-white text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Responses</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @overview_stats[:total_responses] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= link_to journal_analytics_analytics_path + "#completion", class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center">
+                <i class="fas fa-chart-pie text-white text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Avg Completion</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @overview_stats[:average_completion_rate] %>%</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%= link_to analytics_path + "#recent-activity", class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="w-8 h-8 bg-yellow-600 rounded-md flex items-center justify-center">
+                <i class="fas fa-bolt text-white text-sm"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Active This Week</dt>
+                <dd class="text-lg font-medium text-gray-900"><%= @overview_stats[:active_users_this_week] %></dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- User Engagement -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <%= link_to user_analytics_analytics_path, class: "block bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 transition-colors duration-200" do %>
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">User Engagement</h3>
+          <div class="mt-5 grid grid-cols-3 gap-5">
+            <div class="px-4 py-5 bg-blue-50 rounded-lg">
+              <dt class="text-sm font-medium text-blue-900 truncate">Daily Active</dt>
+              <dd class="mt-1 text-3xl font-semibold text-blue-600"><%= @user_engagement[:daily_active_users] %></dd>
+            </div>
+            <div class="px-4 py-5 bg-green-50 rounded-lg">
+              <dt class="text-sm font-medium text-green-900 truncate">Weekly Active</dt>
+              <dd class="mt-1 text-3xl font-semibold text-green-600"><%= @user_engagement[:weekly_active_users] %></dd>
+            </div>
+            <div class="px-4 py-5 bg-purple-50 rounded-lg">
+              <dt class="text-sm font-medium text-purple-900 truncate">Monthly Active</dt>
+              <dd class="mt-1 text-3xl font-semibold text-purple-600"><%= @user_engagement[:monthly_active_users] %></dd>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Quick Actions -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Quick Actions</h3>
+          <div class="mt-5 space-y-3">
+            <%= link_to export_analytics_path, class: "flex items-center text-gray-700 hover:text-blue-600 transition-colors" do %>
+              <i class="fas fa-download mr-3 text-blue-600"></i>
+              <span>Export Analytics Report</span>
+            <% end %>
+            <%= link_to user_analytics_analytics_path, class: "flex items-center text-gray-700 hover:text-blue-600 transition-colors" do %>
+              <i class="fas fa-users mr-3 text-green-600"></i>
+              <span>View User Details</span>
+            <% end %>
+            <%= link_to journal_analytics_analytics_path, class: "flex items-center text-gray-700 hover:text-blue-600 transition-colors" do %>
+              <i class="fas fa-chart-bar mr-3 text-purple-600"></i>
+              <span>View Journal Performance</span>
+            <% end %>
+            <%= link_to analytics_path, class: "flex items-center text-gray-700 hover:text-blue-600 transition-colors" do %>
+              <i class="fas fa-sync mr-3 text-indigo-600"></i>
+              <span>Refresh Analytics</span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submissions Overview -->
+    <div id="submissions" class="bg-white shadow overflow-hidden sm:rounded-md mb-8">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Journal Submissions Overview</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Detailed breakdown of submission status and completion</p>
+      </div>
+      <div class="px-4 py-5 sm:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-purple-600"><%= @overview_stats[:total_submissions] %></div>
+            <div class="text-sm text-gray-500">Total Submissions</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600">
+              <%= JournalSubmission.where(status: 'submitted').count rescue 0 %>
+            </div>
+            <div class="text-sm text-gray-500">Completed</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-yellow-600">
+              <%= JournalSubmission.where(status: 'in_progress').count rescue 0 %>
+            </div>
+            <div class="text-sm text-gray-500">In Progress</div>
+          </div>
+        </div>
+        <div class="mt-4 text-center">
+          <%= link_to "View Detailed Journal Analytics →", journal_analytics_analytics_path, 
+              class: "text-blue-600 hover:text-blue-800 font-medium" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responses Overview -->
+    <div id="responses" class="bg-white shadow overflow-hidden sm:rounded-md mb-8">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Response Activity Overview</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Individual question responses and engagement metrics</p>
+      </div>
+      <div class="px-4 py-5 sm:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-teal-600"><%= @overview_stats[:total_responses] %></div>
+            <div class="text-sm text-gray-500">Total Responses</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-blue-600">
+              <%= Response.where('updated_at > ?', 7.days.ago).count rescue 0 %>
+            </div>
+            <div class="text-sm text-gray-500">This Week</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-indigo-600">
+              <%= (@overview_stats[:total_responses].to_f / [@overview_stats[:total_users], 1].max).round(1) %>
+            </div>
+            <div class="text-sm text-gray-500">Avg per User</div>
+          </div>
+        </div>
+        <div class="mt-4 text-center">
+          <%= link_to "View Detailed User Analytics →", user_analytics_analytics_path, 
+              class: "text-blue-600 hover:text-blue-800 font-medium" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div id="recent-activity" class="bg-white shadow overflow-hidden sm:rounded-md">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Activity</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Latest journal submissions and updates</p>
+      </div>
+      <ul class="divide-y divide-gray-200">
+        <% if @recent_activity.any? %>
+          <% @recent_activity.each do |submission| %>
+            <li class="px-4 py-4 sm:px-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                          <%= submission.submitted? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                      <%= submission.submitted? ? 'Submitted' : 'In Progress' %>
+                    </span>
+                  </div>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900">
+                      <%= submission.user.display_name %> 
+                      <%= submission.submitted? ? 'submitted' : 'updated' %>
+                      "<%= submission.journal.title %>"
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      Completion: <%= submission.completion_percentage %>%
+                    </p>
+                  </div>
+                </div>
+                <div class="text-sm text-gray-500">
+                  <%= time_ago_in_words(submission.updated_at) %> ago
+                </div>
+              </div>
+            </li>
+          <% end %>
+        <% else %>
+          <li class="px-4 py-4 sm:px-6 text-center text-gray-500">
+            No recent activity to display
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>

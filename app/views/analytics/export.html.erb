@@ -1,0 +1,129 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Export Analytics Report</h1>
+          <p class="text-gray-600 mt-1">Generate comprehensive analytics reports in multiple formats</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <%= link_to "← Back to Analytics", analytics_path, class: "text-blue-600 hover:text-blue-800" %>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Report Options</h2>
+        <p class="text-sm text-gray-600">Choose your preferred format and report type</p>
+      </div>
+      
+      <div class="p-6 space-y-6">
+        <!-- Format Selection -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Export Format</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- PDF Export -->
+            <div class="border-2 border-gray-200 rounded-lg p-6 hover:border-blue-300 transition-colors cursor-pointer">
+              <%= link_to export_analytics_path(format: :pdf), 
+                  class: "block text-center", 
+                  target: "_blank" do %>
+                <div class="mb-4">
+                  <div class="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mx-auto">
+                    <i class="fas fa-file-pdf text-red-600 text-2xl"></i>
+                  </div>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">PDF Report</h4>
+                <p class="text-sm text-gray-600">Professional formatted report with charts and graphs</p>
+                <div class="mt-4">
+                  <span class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
+                    <i class="fas fa-download mr-1"></i>
+                    Download PDF
+                  </span>
+                </div>
+              <% end %>
+            </div>
+            
+            <!-- CSV Export -->
+            <div class="border-2 border-gray-200 rounded-lg p-6 hover:border-green-300 transition-colors cursor-pointer">
+              <%= link_to export_analytics_path(format: :csv), 
+                  class: "block text-center" do %>
+                <div class="mb-4">
+                  <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mx-auto">
+                    <i class="fas fa-file-csv text-green-600 text-2xl"></i>
+                  </div>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900 mb-2">CSV Data</h4>
+                <p class="text-sm text-gray-600">Raw data export for further analysis in Excel or other tools</p>
+                <div class="mt-4">
+                  <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                    <i class="fas fa-download mr-1"></i>
+                    Download CSV
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Summary -->
+        <div class="bg-gray-50 rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Report Summary</h3>
+          <p class="text-sm text-gray-600 mb-4">
+            Your exported report will include the following analytics data:
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h4 class="font-medium text-gray-900 mb-2">User Analytics</h4>
+              <ul class="space-y-1 text-gray-600">
+                <li>• Total user counts by role</li>
+                <li>• User engagement metrics</li>
+                <li>• Top active users</li>
+                <li>• User activity patterns</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 class="font-medium text-gray-900 mb-2">Journal Analytics</h4>
+              <ul class="space-y-1 text-gray-600">
+                <li>• Journal completion rates</li>
+                <li>• Question type distribution</li>
+                <li>• Response trends</li>
+                <li>• Journal performance metrics</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Options -->
+        <div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Options</h3>
+          <div class="space-y-3">
+            <label class="flex items-center">
+              <input type="checkbox" class="rounded border-gray-300 text-blue-600" checked disabled>
+              <span class="ml-2 text-sm text-gray-600">Include overview statistics</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="rounded border-gray-300 text-blue-600" checked disabled>
+              <span class="ml-2 text-sm text-gray-600">Include user engagement data</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="rounded border-gray-300 text-blue-600" checked disabled>
+              <span class="ml-2 text-sm text-gray-600">Include journal completion metrics</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="rounded border-gray-300 text-blue-600" checked disabled>
+              <span class="ml-2 text-sm text-gray-600">Include time-based trends</span>
+            </label>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">
+            Note: All analytics data is anonymized and FERPA compliant
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

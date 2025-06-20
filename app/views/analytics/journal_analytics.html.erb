@@ -1,0 +1,315 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-6">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Journal Analytics</h1>
+          <p class="text-gray-600 mt-1">Comprehensive journal performance and engagement insights</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <%= link_to "← Back to Analytics", analytics_path, class: "text-blue-600 hover:text-blue-800" %>
+          <%= link_to export_analytics_path + ".pdf", 
+              class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" do %>
+            <i class="fas fa-download mr-2"></i>
+            Export PDF
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Journal Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center">
+          <div class="p-3 bg-blue-100 rounded-lg">
+            <i class="fas fa-book-open text-blue-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-sm font-medium text-gray-500">Total Journals</h3>
+            <p class="text-2xl font-bold text-blue-600"><%= @journal_stats[:total_journals] %></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-lg">
+            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-sm font-medium text-gray-500">Published</h3>
+            <p class="text-2xl font-bold text-green-600"><%= @journal_stats[:published_journals] %></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center">
+          <div class="p-3 bg-yellow-100 rounded-lg">
+            <i class="fas fa-edit text-yellow-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-sm font-medium text-gray-500">Drafts</h3>
+            <p class="text-2xl font-bold text-yellow-600"><%= @journal_stats[:draft_journals] %></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center">
+          <div class="p-3 bg-purple-100 rounded-lg">
+            <i class="fas fa-users text-purple-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-sm font-medium text-gray-500">With Submissions</h3>
+            <p class="text-2xl font-bold text-purple-600"><%= @journal_stats[:journals_with_submissions] %></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-center">
+          <div class="p-3 bg-indigo-100 rounded-lg">
+            <i class="fas fa-question-circle text-indigo-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-sm font-medium text-gray-500">Avg Questions</h3>
+            <p class="text-2xl font-bold text-indigo-600"><%= number_with_precision(@journal_stats[:average_questions_per_journal], precision: 1) %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <!-- Journal Status Distribution -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Journal Status Distribution</h2>
+        <div class="h-64 relative">
+          <canvas id="journalStatusChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+
+      <!-- Question Type Usage -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Question Type Usage</h2>
+        <div class="h-64 relative">
+          <canvas id="questionTypeChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journal Completion Rates -->
+    <div id="completion" class="bg-white rounded-lg shadow mb-8">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Journal Completion Rates</h2>
+        <p class="text-sm text-gray-600">Completion percentage by journal</p>
+      </div>
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Journal Title
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total Submissions
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Completed
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Completion Rate
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Progress
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% if @completion_rates.any? %>
+                <% @completion_rates.each do |journal| %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="text-sm font-medium text-gray-900"><%= journal.title %></div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <%= journal.total_submissions %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <%= journal.completed_submissions %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        <%= if journal.completion_rate.to_f >= 80
+                              'bg-green-100 text-green-800'
+                            elsif journal.completion_rate.to_f >= 60
+                              'bg-yellow-100 text-yellow-800'
+                            else
+                              'bg-red-100 text-red-800'
+                            end %>">
+                        <%= number_to_percentage(journal.completion_rate || 0, precision: 1) %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="h-2 rounded-full <%= if journal.completion_rate.to_f >= 80
+                                                          'bg-green-600'
+                                                        elsif journal.completion_rate.to_f >= 60
+                                                          'bg-yellow-600'
+                                                        else
+                                                          'bg-red-600'
+                                                        end %>" 
+                             style="width: <%= [journal.completion_rate.to_f, 100].min %>%"></div>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              <% else %>
+                <tr>
+                  <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                    No journal completion data available
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Response Trends -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">Response Activity (Last 7 Days)</h2>
+        <p class="text-sm text-gray-600">Daily response submission trends</p>
+      </div>
+      <div class="p-6">
+        <div class="h-64 relative">
+          <canvas id="responseTrendsChart" class="w-full h-full"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Journal Status Chart
+  const statusCtx = document.getElementById('journalStatusChart').getContext('2d');
+  const statusData = <%= raw (@journals_by_status || {}).to_json %>;
+  
+  if (Object.keys(statusData).length === 0) {
+    statusData['No Data'] = 1;
+  }
+  
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statusData).map(status => status.charAt(0).toUpperCase() + status.slice(1)),
+      datasets: [{
+        data: Object.values(statusData),
+        backgroundColor: [
+          'rgb(16, 185, 129)',  // Green for published
+          'rgb(245, 158, 11)',  // Yellow for draft
+          'rgb(107, 114, 128)'  // Gray for archived
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+
+  // Question Type Chart
+  const questionTypeCtx = document.getElementById('questionTypeChart').getContext('2d');
+  const questionTypeData = <%= raw (@popular_question_types || {}).to_json %>;
+  
+  if (Object.keys(questionTypeData).length === 0) {
+    questionTypeData['No Data'] = 1;
+  }
+  
+  new Chart(questionTypeCtx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(questionTypeData).map(type => type.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')),
+      datasets: [{
+        label: 'Questions',
+        data: Object.values(questionTypeData),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgb(59, 130, 246)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+
+  // Response Trends Chart
+  const trendsCtx = document.getElementById('responseTrendsChart').getContext('2d');
+  const trendsData = <%= raw (@response_trends || []).to_json %>;
+  
+  const chartLabels = trendsData.length > 0 ? 
+    trendsData.map(day => new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) :
+    ['No Data'];
+  const chartData = trendsData.length > 0 ?
+    trendsData.map(day => day.responses) :
+    [0];
+  
+  new Chart(trendsCtx, {
+    type: 'line',
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        label: 'Responses',
+        data: chartData,
+        borderColor: 'rgb(139, 92, 246)',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+});
+</script>

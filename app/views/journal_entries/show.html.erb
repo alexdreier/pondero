@@ -1,0 +1,153 @@
+<div class="max-w-4xl mx-auto p-6">
+  <div class="flex justify-between items-start mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900"><%= @journal_entry.display_title %></h1>
+      <p class="text-gray-600 mt-1">
+        <%= @journal.title %> • <%= @journal_entry.entry_date&.strftime('%B %d, %Y') %>
+        <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+          <%= @journal_entry.status == 'draft' ? 'bg-yellow-100 text-yellow-800' : 
+              @journal_entry.status == 'submitted' ? 'bg-green-100 text-green-800' : 
+              'bg-blue-100 text-blue-800' %>">
+          <%= @journal_entry.status.humanize %>
+        </span>
+      </p>
+    </div>
+    
+    <div class="flex gap-3">
+      <%= link_to "All Entries", journal_journal_entries_path(@journal), 
+          class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+      <% if @journal_entry.draft? %>
+        <%= link_to "Edit Entry", edit_journal_journal_entry_path(@journal, @journal_entry), 
+            class: "inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+        <% if @journal_entry.all_required_answered? %>
+          <%= link_to "Submit Entry", journal_journal_entry_path(@journal, @journal_entry), 
+              method: :patch, 
+              params: { _method: :patch, action: :submit },
+              confirm: "Are you sure you want to submit this entry? You won't be able to edit it afterwards.",
+              class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700" %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @journal_entry.description.present? %>
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+      <%= @journal_entry.description %>
+    </div>
+  <% end %>
+
+  <div class="mb-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-medium text-gray-900">Progress</h2>
+      <span class="text-sm text-gray-500"><%= @completion_percentage %>% complete</span>
+    </div>
+    <div class="mt-2 bg-gray-200 rounded-full h-2">
+      <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: <%= @completion_percentage %>%"></div>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <% @journal.questions.order(:position).each do |question| %>
+      <% response = @responses.find { |r| r.question_id == question.id } %>
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex-1">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              <%= question.content %>
+              <% if question.required? %>
+                <span class="text-red-500 ml-1">*</span>
+              <% end %>
+            </h3>
+            <% if question.description.present? %>
+              <div class="text-sm text-gray-600 mb-4">
+                <%= question.description %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @journal_entry.draft? %>
+          <%= form_with model: response || Response.new, 
+                        local: false, 
+                        html: { 
+                          class: "response-form",
+                          data: { 
+                            question_id: question.id,
+                            journal_entry_id: @journal_entry.id
+                          }
+                        } do |form| %>
+            <%= form.hidden_field :question_id, value: question.id %>
+            <%= form.hidden_field :journal_entry_id, value: @journal_entry.id %>
+            
+            <div class="space-y-4">
+              <%= form.rich_text_area :content, 
+                  value: response&.content,
+                  class: "trix-content min-h-[120px]",
+                  placeholder: "Enter your response here..." %>
+              
+              <div class="flex justify-end">
+                <%= form.submit "Save Response", 
+                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="bg-gray-50 rounded-md p-4">
+            <% if response&.content.present? %>
+              <%= response.content %>
+            <% else %>
+              <p class="text-gray-500 italic">No response provided</p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @journal_entry.draft? %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const forms = document.querySelectorAll('.response-form');
+  
+  forms.forEach(form => {
+    form.addEventListener('ajax:success', function(event) {
+      const response = event.detail[0];
+      // Update progress bar
+      if (response.completion_percentage !== undefined) {
+        const progressBar = document.querySelector('.bg-blue-600');
+        const progressText = document.querySelector('.text-sm.text-gray-500');
+        if (progressBar && progressText) {
+          progressBar.style.width = response.completion_percentage + '%';
+          progressText.textContent = response.completion_percentage + '% complete';
+        }
+      }
+      
+      // Show success message
+      const notice = document.createElement('div');
+      notice.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
+      notice.textContent = 'Response saved successfully';
+      document.body.appendChild(notice);
+      
+      setTimeout(() => {
+        notice.remove();
+      }, 3000);
+    });
+    
+    form.addEventListener('ajax:error', function(event) {
+      const error = event.detail[0];
+      
+      // Show error message
+      const alert = document.createElement('div');
+      alert.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg z-50';
+      alert.textContent = 'Failed to save response';
+      document.body.appendChild(alert);
+      
+      setTimeout(() => {
+        alert.remove();
+      }, 3000);
+    });
+  });
+});
+</script>
+<% end %>

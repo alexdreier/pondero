@@ -1,0 +1,70 @@
+<div class="header">
+  <h1><%= @journal.title %></h1>
+  <div class="subtitle">
+    Student: <%= current_user.display_name %> | 
+    Export Date: <%= Date.current.strftime("%B %d, %Y") %>
+  </div>
+  <% if @journal.description.present? %>
+    <div class="subtitle" style="margin-top: 10px;">
+      <%= @journal.description %>
+    </div>
+  <% end %>
+</div>
+
+<% if @responses.any? %>
+  <% @responses.each_with_index do |response, index| %>
+    <div class="question">
+      <div class="question-title">
+        <%= index + 1 %>. <%= response.question.content %>
+        <% if response.question.required? %>
+          <span style="color: #EF4444;">*</span>
+        <% end %>
+      </div>
+      
+      <div class="question-type">
+        Type: <%= response.question.question_type.humanize %>
+      </div>
+      
+      <% if response.content.present? %>
+        <div class="response">
+          <div class="response-content">
+            <% case response.question.question_type %>
+            <% when 'multiple_response' %>
+              <% response.content.split(',').each do |option| %>
+                <span class="multiple-choice-item"><%= option.strip %></span>
+              <% end %>
+            <% when 'ranking' %>
+              <% response.content.split(',').each_with_index do |option, rank| %>
+                <span class="ranking-item"><%= rank + 1 %>. <%= option.strip %></span>
+              <% end %>
+            <% else %>
+              <%= response.content %>
+            <% end %>
+          </div>
+          
+          <div class="response-meta">
+            <% if response.submitted_at %>
+              Submitted: <%= response.submitted_at.strftime("%B %d, %Y at %I:%M %p") %>
+            <% else %>
+              Last updated: <%= response.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="no-response">
+          No response provided
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <div style="text-align: center; padding: 50px; color: #6B7280;">
+    <p>No responses recorded for this journal.</p>
+  </div>
+<% end %>
+
+<% if @submission&.completed_at %>
+  <div style="margin-top: 40px; padding: 20px; background-color: #F0F9FF; border: 1px solid #BAE6FD;">
+    <strong>Journal completed on:</strong> <%= @submission.completed_at.strftime("%B %d, %Y at %I:%M %p") %>
+  </div>
+<% end %>

@@ -1,0 +1,157 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-8">LTI Configuration for Canvas</h1>
+      
+      <div class="space-y-8">
+        <!-- Configuration URL -->
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Configuration URL</h2>
+          <p class="text-gray-600 mb-4">
+            Use this URL to configure Pondero as an external tool in Canvas:
+          </p>
+          <div class="bg-gray-100 p-4 rounded-lg">
+            <code class="text-sm font-mono text-gray-800">
+              <%= lti_config_url(format: :xml) %>
+            </code>
+            <button class="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                    onclick="copyToClipboard('<%= lti_config_url(format: :xml) %>')">
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Manual Configuration -->
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Manual Configuration</h2>
+          <p class="text-gray-600 mb-4">
+            If you prefer to configure manually, use these settings:
+          </p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Consumer Key</label>
+              <div class="bg-gray-100 p-3 rounded-lg flex justify-between items-center">
+                <code class="text-sm font-mono text-gray-800">pondero_lti_key</code>
+                <button class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                        onclick="copyToClipboard('pondero_lti_key')">
+                  Copy
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Shared Secret</label>
+              <div class="bg-gray-100 p-3 rounded-lg flex justify-between items-center">
+                <code class="text-sm font-mono text-gray-800">pondero_shared_secret_12345</code>
+                <button class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                        onclick="copyToClipboard('pondero_shared_secret_12345')">
+                  Copy
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Launch URL</label>
+              <div class="bg-gray-100 p-3 rounded-lg flex justify-between items-center">
+                <code class="text-sm font-mono text-gray-800"><%= lti_launch_url %></code>
+                <button class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                        onclick="copyToClipboard('<%= lti_launch_url %>')">
+                  Copy
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Privacy Level</label>
+              <div class="bg-gray-100 p-3 rounded-lg">
+                <code class="text-sm font-mono text-gray-800">public</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Setup Instructions -->
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Canvas Setup Instructions</h2>
+          <div class="prose max-w-none">
+            <ol class="list-decimal list-inside space-y-3 text-gray-700">
+              <li>Log in to Canvas as an administrator</li>
+              <li>Navigate to <strong>Settings</strong> → <strong>Apps</strong></li>
+              <li>Click <strong>View App Configurations</strong></li>
+              <li>Click <strong>+ App</strong> to add a new external tool</li>
+              <li>Choose one of the following methods:
+                <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                  <li><strong>By URL:</strong> Use the Configuration URL above</li>
+                  <li><strong>Manual Entry:</strong> Use the manual configuration values above</li>
+                </ul>
+              </li>
+              <li>Set the tool name to "Pondero - Reflective Journaling"</li>
+              <li>Enable desired placements:
+                <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
+                  <li><strong>Course Navigation:</strong> Shows Pondero in course navigation menu</li>
+                  <li><strong>Assignment Selection:</strong> Allows creating Pondero assignments</li>
+                </ul>
+              </li>
+              <li>Save the configuration</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Testing -->
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Testing the Integration</h2>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 class="font-medium text-blue-900 mb-2">After configuration:</h3>
+            <ul class="list-disc list-inside space-y-1 text-blue-800 text-sm">
+              <li>Navigate to a Canvas course where the tool is installed</li>
+              <li>Look for "Pondero Journals" in the course navigation</li>
+              <li>Click the link to test the LTI launch</li>
+              <li>Verify that users are automatically logged in and roles are mapped correctly</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Custom Parameters -->
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Custom Parameters</h2>
+          <p class="text-gray-600 mb-4">
+            You can pass custom parameters to launch specific journals:
+          </p>
+          <div class="bg-gray-100 p-4 rounded-lg">
+            <code class="text-sm font-mono text-gray-800">custom_journal_id=123</code>
+          </div>
+          <p class="text-sm text-gray-500 mt-2">
+            This will redirect users directly to journal with ID 123 after LTI launch.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(function() {
+    // Show temporary success message
+    event.target.textContent = 'Copied!';
+    setTimeout(() => {
+      event.target.textContent = 'Copy';
+    }, 2000);
+  }).catch(function(err) {
+    console.error('Could not copy text: ', err);
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    event.target.textContent = 'Copied!';
+    setTimeout(() => {
+      event.target.textContent = 'Copy';
+    }, 2000);
+  });
+}
+</script>

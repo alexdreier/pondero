@@ -1,0 +1,2 @@
+module JournalSubmissionsHelper
+end

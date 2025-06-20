@@ -1,0 +1,135 @@
+<%# 
+  User Dropdown Menu Component
+  Sophisticated dropdown with contextual actions
+%>
+
+<div class="user-dropdown-content">
+  
+  <!-- User Info Header -->
+  <div class="dropdown-header">
+    <div class="dropdown-user-info">
+      <p class="dropdown-user-name"><%= user.display_name %></p>
+      <p class="dropdown-user-email"><%= user.email %></p>
+    </div>
+    <div class="dropdown-separator"></div>
+  </div>
+  
+  <!-- Primary Actions -->
+  <div class="dropdown-section">
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("user", variant: :outline, class: "w-4 h-4"),
+        text: "Profile",
+        path: edit_user_registration_path,
+        description: "View and edit your profile" %>
+        
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("bell", variant: :outline, class: "w-4 h-4"),
+        text: "Notifications",
+        path: "#",
+        description: "Manage your preferences",
+        badge: { text: "3", type: :info } if user_has_notifications?(user) %>
+        
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("chart-bar", variant: :outline, class: "w-4 h-4"),
+        text: "My Activity",
+        path: user_activity_path(user),
+        description: "View your progress" %>
+  </div>
+  
+  <!-- Role-specific Actions -->
+  <% if user.instructor? || user.admin? %>
+    <div class="dropdown-separator"></div>
+    <div class="dropdown-section">
+      <div class="dropdown-section-title">Management</div>
+      
+      <% if user.instructor? %>
+        <%= render 'shared/dropdown_item',
+            icon: heroicon("academic-cap", variant: :outline, class: "w-4 h-4"),
+            text: "Instructor Tools",
+            path: instructor_dashboard_path,
+            description: "Access teaching resources" %>
+      <% end %>
+      
+      <% if user.admin? %>
+        <%= render 'shared/dropdown_item',
+            icon: heroicon("cog-6-tooth", variant: :outline, class: "w-4 h-4"),
+            text: "Admin Panel",
+            path: admin_dashboard_path,
+            description: "System administration" %>
+            
+        <%= render 'shared/dropdown_item',
+            icon: heroicon("chart-pie", variant: :outline, class: "w-4 h-4"),
+            text: "System Analytics",
+            path: system_analytics_path,
+            description: "Platform insights" %>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <!-- Support & Help -->
+  <div class="dropdown-separator"></div>
+  <div class="dropdown-section">
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("question-mark-circle", variant: :outline, class: "w-4 h-4"),
+        text: "Help & Support",
+        path: help_path,
+        description: "Get assistance" %>
+        
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("document-text", variant: :outline, class: "w-4 h-4"),
+        text: "Documentation",
+        path: documentation_path,
+        description: "User guides and resources" %>
+        
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("chat-bubble-left-right", variant: :outline, class: "w-4 h-4"),
+        text: "Feedback",
+        path: feedback_path,
+        description: "Share your thoughts" %>
+  </div>
+  
+  <!-- Account Actions -->
+  <div class="dropdown-separator"></div>
+  <div class="dropdown-section">
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("key", variant: :outline, class: "w-4 h-4"),
+        text: "Security",
+        path: security_settings_path,
+        description: "Password and 2FA" %>
+        
+    <%= render 'shared/dropdown_item',
+        icon: heroicon("shield-check", variant: :outline, class: "w-4 h-4"),
+        text: "Privacy",
+        path: privacy_settings_path,
+        description: "Data and privacy controls" %>
+  </div>
+  
+  <!-- Sign Out -->
+  <div class="dropdown-separator"></div>
+  <div class="dropdown-section">
+    <%= link_to destroy_user_session_path,
+        method: :delete,
+        class: "dropdown-item dropdown-item-danger",
+        data: { 
+          confirm: "Are you sure you want to sign out?",
+          turbo_method: :delete 
+        } do %>
+      <div class="dropdown-item-icon">
+        <%= heroicon("arrow-right-on-rectangle", variant: :outline, class: "w-4 h-4") %>
+      </div>
+      <div class="dropdown-item-content">
+        <span class="dropdown-item-text">Sign Out</span>
+        <span class="dropdown-item-description">End your session</span>
+      </div>
+    <% end %>
+  </div>
+  
+</div>
+
+<%
+  def user_has_notifications?(user)
+    # This would check for actual notifications
+    # For now, return a sample value
+    user.updated_at > 1.day.ago
+  end
+%>

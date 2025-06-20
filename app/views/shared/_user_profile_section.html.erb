@@ -1,0 +1,158 @@
+<%# 
+  User Profile Section Component
+  Sophisticated user profile display with actions
+%>
+
+<div class="<%= user_profile_section_classes(variant) %>" data-component="user-profile">
+  
+  <div class="user-profile-content">
+    <!-- User Avatar -->
+    <div class="user-avatar">
+      <% if user.avatar.attached? %>
+        <%= image_tag user.avatar, 
+            class: "w-10 h-10 rounded-full object-cover",
+            alt: "#{user.display_name} avatar" %>
+      <% else %>
+        <div class="<%= user_avatar_placeholder_classes %>">
+          <span class="user-avatar-initial">
+            <%= user_avatar_initial(user) %>
+          </span>
+        </div>
+      <% end %>
+      
+      <% if user_online_status(user) %>
+        <div class="user-status-indicator <%= user_status_classes(user) %>"></div>
+      <% end %>
+    </div>
+    
+    <!-- User Information -->
+    <div class="user-info">
+      <p class="user-name">
+        <%= user.display_name %>
+      </p>
+      <p class="user-role">
+        <%= user_role_display(user) %>
+      </p>
+      
+      <% if variant == :desktop %>
+        <div class="user-stats">
+          <span class="user-stat">
+            <span class="user-stat-value"><%= user_activity_count(user) %></span>
+            <span class="user-stat-label">activities</span>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <!-- User Actions -->
+  <div class="user-actions">
+    
+    <!-- Settings Dropdown -->
+    <div class="relative" data-controller="dropdown">
+      <button class="user-action-button" data-action="click->dropdown#toggle">
+        <%= heroicon("cog-6-tooth", variant: :outline, class: "w-5 h-5") %>
+      </button>
+      
+      <div class="user-dropdown" data-dropdown-target="menu">
+        <%= render 'shared/user_dropdown_menu', user: user %>
+      </div>
+    </div>
+    
+    <!-- Dark Mode Toggle -->
+    <button class="user-action-button dark-mode-toggle" 
+            data-action="click->theme#toggle"
+            title="Toggle Dark Mode">
+      <%= heroicon("moon", variant: :outline, class: "w-5 h-5") %>
+    </button>
+    
+    <!-- Sign Out -->
+    <%= button_to destroy_user_session_path, 
+        method: :delete,
+        class: "user-action-button user-signout border-0 bg-transparent cursor-pointer",
+        title: "Sign Out",
+        data: { 
+          confirm: "Are you sure you want to sign out?"
+        } do %>
+      <%= heroicon("arrow-right-on-rectangle", variant: :outline, class: "w-5 h-5") %>
+    <% end %>
+    
+  </div>
+  
+</div>
+
+<%
+  def user_profile_section_classes(variant)
+    base_classes = %w[user-profile-section]
+    
+    case variant
+    when :desktop
+      base_classes += %w[flex-shrink-0 p-4 border-t border-gray-200]
+    when :mobile_overlay
+      base_classes += %w[flex-shrink-0 p-4 border-t border-gray-200]
+    end
+    
+    base_classes.join(" ")
+  end
+
+  def user_avatar_placeholder_classes
+    %w[
+      w-10 h-10 
+      bg-gradient-to-br from-blue-500 to-purple-600 
+      rounded-full 
+      flex items-center justify-center
+      user-avatar-placeholder
+    ].join(" ")
+  end
+
+  def user_avatar_initial(user)
+    if user.first_name.present?
+      user.first_name.first.upcase
+    else
+      user.email.first.upcase
+    end
+  end
+
+  def user_online_status(user)
+    # This would typically check last_seen_at or similar
+    user.updated_at > 15.minutes.ago
+  end
+
+  def user_status_classes(user)
+    base_classes = %w[
+      absolute -bottom-0 -right-0 
+      w-3 h-3 
+      border-2 border-white 
+      rounded-full
+    ]
+    
+    if user_online_status(user)
+      base_classes << "bg-green-400"
+    else
+      base_classes << "bg-gray-400"
+    end
+    
+    base_classes.join(" ")
+  end
+
+  def user_role_display(user)
+    role = user.role&.humanize || 'User'
+    
+    case user.role
+    when 'admin'
+      "#{role} • WestEd"
+    when 'instructor'
+      "#{role} • WestEd"
+    else
+      role
+    end
+  end
+
+  def user_activity_count(user)
+    # Sophisticated activity calculation
+    submissions_count = user.journal_submissions.count
+    responses_count = user.responses.count
+    
+    submissions_count + responses_count
+  end
+%>

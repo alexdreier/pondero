@@ -1,0 +1,296 @@
+<!-- Question form field for learners -->
+<div class="question-field" data-question-id="<%= question.id %>">
+  <% case question.question_type %>
+  <% when 'free_text' %>
+    <%= form_with(model: [question.journal, question], url: "/responses", method: :post, local: false) do |form| %>
+      <trix-editor input="response-content-<%= question.id %>" 
+                   class="trix-content"
+                   placeholder="Enter your response here..."
+                   data-autosave="true"
+                   data-question-id="<%= question.id %>"></trix-editor>
+      <input id="response-content-<%= question.id %>" 
+             type="hidden" 
+             name="responses[<%= question.id %>][content]" 
+             value="<%= response&.content %>">
+    <% end %>
+
+  <% when 'single_response' %>
+    <%= form_with(model: [question.journal, question], url: "/responses", method: :post, local: false) do |form| %>
+      <trix-editor input="response-content-single-<%= question.id %>" 
+                   class="trix-content trix-compact"
+                   placeholder="Enter your response..."
+                   data-autosave="true"
+                   data-question-id="<%= question.id %>"></trix-editor>
+      <input id="response-content-single-<%= question.id %>" 
+             type="hidden" 
+             name="responses[<%= question.id %>][content]" 
+             value="<%= response&.content %>">
+    <% end %>
+
+  <% when 'choice' %>
+    <div class="space-y-2">
+      <% question.options_array.each do |option| %>
+        <label class="flex items-center">
+          <input type="radio" 
+                 name="responses[<%= question.id %>][content]" 
+                 value="<%= option %>"
+                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                 data-autosave="true"
+                 <%= 'checked' if response&.content == option %>>
+          <span class="ml-2 text-gray-700"><%= option %></span>
+        </label>
+      <% end %>
+    </div>
+
+  <% when 'multiple_response' %>
+    <div class="space-y-2">
+      <% selected_options = response&.content&.split(',') || [] %>
+      <% question.options_array.each do |option| %>
+        <label class="flex items-center">
+          <input type="checkbox" 
+                 name="responses[<%= question.id %>][content][]" 
+                 value="<%= option %>"
+                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                 data-autosave="true"
+                 <%= 'checked' if selected_options.include?(option) %>>
+          <span class="ml-2 text-gray-700"><%= option %></span>
+        </label>
+      <% end %>
+    </div>
+
+  <% when 'likert_scale' %>
+    <div class="flex justify-between items-center">
+      <% question.options_array.each_with_index do |option, index| %>
+        <label class="flex flex-col items-center text-center">
+          <input type="radio" 
+                 name="responses[<%= question.id %>][content]" 
+                 value="<%= option %>"
+                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mb-1"
+                 data-autosave="true"
+                 <%= 'checked' if response&.content == option %>>
+          <span class="text-xs text-gray-600 max-w-20 leading-tight"><%= option %></span>
+        </label>
+      <% end %>
+    </div>
+
+  <% when 'ranking' %>
+    <div class="space-y-2">
+      <p class="text-sm text-gray-600 mb-2">Drag to reorder, or use the dropdowns to rank these options:</p>
+      <% ranked_options = response&.content&.split(',') || question.options_array %>
+      <div id="ranking-<%= question.id %>" class="space-y-2">
+        <% ranked_options.each_with_index do |option, index| %>
+          <div class="flex items-center bg-gray-50 p-2 rounded border ranking-item" data-option="<%= option %>">
+            <span class="text-sm text-gray-500 mr-2"><%= index + 1 %>.</span>
+            <span class="flex-1"><%= option %></span>
+            <div class="flex space-x-1">
+              <button type="button" onclick="moveUp(this)" class="text-blue-600 hover:text-blue-800 text-sm">↑</button>
+              <button type="button" onclick="moveDown(this)" class="text-blue-600 hover:text-blue-800 text-sm">↓</button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <input type="hidden" 
+             name="responses[<%= question.id %>][content]" 
+             id="ranking-input-<%= question.id %>"
+             value="<%= response&.content %>"
+             data-autosave="true">
+    </div>
+
+  <% when 'file_upload' %>
+    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+      <input type="file" 
+             name="responses[<%= question.id %>][file]" 
+             class="hidden" 
+             id="file-<%= question.id %>"
+             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+      <label for="file-<%= question.id %>" class="cursor-pointer">
+        <div class="text-gray-400 mb-2">
+          <svg class="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <span class="text-blue-600 hover:text-blue-500">Click to upload a file</span>
+        <p class="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG, GIF up to 10MB</p>
+      </label>
+      <% if response&.content.present? %>
+        <p class="text-sm text-gray-600 mt-2">Current file: <%= response.content %></p>
+      <% end %>
+    </div>
+
+  <% when 'instructional_text' %>
+    <!-- Instructional text doesn't need an input field -->
+    <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+      <p class="text-blue-800 text-sm">This is informational content. No response required.</p>
+    </div>
+
+  <% end %>
+</div>
+
+<script>
+// Ranking functionality
+function moveUp(button) {
+  const item = button.closest('.ranking-item');
+  const prev = item.previousElementSibling;
+  if (prev) {
+    item.parentNode.insertBefore(item, prev);
+    updateRankingInput(item.closest('[id^="ranking-"]'));
+  }
+}
+
+function moveDown(button) {
+  const item = button.closest('.ranking-item');
+  const next = item.nextElementSibling;
+  if (next) {
+    item.parentNode.insertBefore(next, item);
+    updateRankingInput(item.closest('[id^="ranking-"]'));
+  }
+}
+
+function updateRankingInput(container) {
+  const questionId = container.id.split('-')[1];
+  const items = container.querySelectorAll('.ranking-item');
+  const order = Array.from(items).map(item => item.dataset.option);
+  
+  document.getElementById(`ranking-input-${questionId}`).value = order.join(',');
+  
+  // Update position numbers
+  items.forEach((item, index) => {
+    item.querySelector('span').textContent = `${index + 1}.`;
+  });
+}
+
+// Auto-save functionality
+let autoSaveTimeout;
+
+function autoSaveResponse(element) {
+  clearTimeout(autoSaveTimeout);
+  
+  // Show saving indicator
+  showSavingIndicator();
+  
+  autoSaveTimeout = setTimeout(() => {
+    const questionId = element.closest('.question-field').dataset.questionId;
+    const formData = new FormData();
+    
+    // Get the response content based on element type
+    let content = '';
+    if (element.type === 'checkbox') {
+      const checkboxes = element.closest('.question-field').querySelectorAll('input[type="checkbox"]:checked');
+      content = Array.from(checkboxes).map(cb => cb.value).join(',');
+    } else if (element.type === 'radio') {
+      content = element.value;
+    } else if (element.type === 'hidden' && element.id.includes('ranking-input')) {
+      content = element.value;
+    } else {
+      content = element.value;
+    }
+    
+    formData.append('response[content]', content);
+    formData.append('question_id', questionId);
+    
+    // Send AJAX request
+    fetch('/responses', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showSavedIndicator();
+      } else {
+        showErrorIndicator();
+      }
+    })
+    .catch(error => {
+      console.error('Auto-save error:', error);
+      showErrorIndicator();
+    });
+  }, 1000); // Auto-save after 1 second of inactivity
+}
+
+function showSavingIndicator() {
+  const indicator = document.getElementById('save-indicator') || createSaveIndicator();
+  indicator.textContent = 'Saving...';
+  indicator.className = 'save-indicator saving';
+  indicator.style.display = 'block';
+}
+
+function showSavedIndicator() {
+  const indicator = document.getElementById('save-indicator') || createSaveIndicator();
+  indicator.textContent = 'Saved ✓';
+  indicator.className = 'save-indicator saved';
+  indicator.style.display = 'block';
+  
+  setTimeout(() => {
+    indicator.style.display = 'none';
+  }, 2000);
+}
+
+function showErrorIndicator() {
+  const indicator = document.getElementById('save-indicator') || createSaveIndicator();
+  indicator.textContent = 'Save failed ✗';
+  indicator.className = 'save-indicator error';
+  indicator.style.display = 'block';
+  
+  setTimeout(() => {
+    indicator.style.display = 'none';
+  }, 3000);
+}
+
+function createSaveIndicator() {
+  const indicator = document.createElement('div');
+  indicator.id = 'save-indicator';
+  indicator.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    display: none;
+  `;
+  document.body.appendChild(indicator);
+  
+  // Add CSS for different states
+  const style = document.createElement('style');
+  style.textContent = `
+    .save-indicator.saving {
+      background-color: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #F59E0B;
+    }
+    .save-indicator.saved {
+      background-color: #D1FAE5;
+      color: #065F46;
+      border: 1px solid #10B981;
+    }
+    .save-indicator.error {
+      background-color: #FEE2E2;
+      color: #991B1B;
+      border: 1px solid #EF4444;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  return indicator;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const autosaveFields = document.querySelectorAll('[data-autosave="true"]');
+  autosaveFields.forEach(field => {
+    field.addEventListener('input', function() {
+      autoSaveResponse(this);
+    });
+    
+    field.addEventListener('change', function() {
+      autoSaveResponse(this);
+    });
+  });
+});
+</script>

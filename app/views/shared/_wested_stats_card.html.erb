@@ -1,0 +1,151 @@
+<%# 
+  WestEd Statistics Card Component
+  Sophisticated Rails partial for consistent stats display
+  
+  Parameters:
+  - title: String - The card title
+  - value: String/Integer - The statistical value to display
+  - icon: String - SVG icon content
+  - color_scheme: Symbol - Color scheme from WestEd palette
+  - trend: Hash (optional) - Trend data with direction and percentage
+  - actions: Array (optional) - Action buttons/links
+%>
+
+<div class="<%= wested_stats_card_classes(color_scheme, local_assigns) %>">
+  <div class="stats-card-content">
+    
+    <!-- Icon Section -->
+    <div class="<%= wested_icon_container_classes(color_scheme) %>">
+      <%= content_tag :div, 
+          icon&.html_safe, 
+          class: "stats-icon",
+          style: wested_gradient(wested_color_scheme_gradient(color_scheme)) %>
+    </div>
+    
+    <!-- Content Section -->
+    <div class="stats-content">
+      <div class="stats-header">
+        <h3 class="stats-title"><%= title %></h3>
+        <% if local_assigns[:trend] %>
+          <div class="<%= trend_indicator_classes(trend[:direction]) %>">
+            <%= trend_icon(trend[:direction]) %>
+            <span><%= trend[:percentage] %>%</span>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="stats-value-container">
+        <p class="stats-value"><%= format_stats_value(value) %></p>
+        <% if local_assigns[:subtitle] %>
+          <p class="stats-subtitle"><%= subtitle %></p>
+        <% end %>
+      </div>
+      
+      <!-- Progress Bar (if provided) -->
+      <% if local_assigns[:progress] %>
+        <div class="stats-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" 
+                 style="width: <%= progress %>%; <%= wested_gradient(wested_color_scheme_gradient(color_scheme)) %>">
+            </div>
+          </div>
+          <span class="progress-text"><%= progress %>% complete</span>
+        </div>
+      <% end %>
+    </div>
+    
+  </div>
+  
+  <!-- Actions Footer -->
+  <% if local_assigns[:actions]&.any? %>
+    <div class="stats-actions">
+      <% actions.each do |action| %>
+        <%= link_to action[:text], 
+            action[:path], 
+            class: "stats-action-link #{action[:class]}".strip,
+            **action.except(:text, :path, :class) %>
+      <% end %>
+    </div>
+  <% end %>
+  
+</div>
+
+<%# Helper method definitions for this component %>
+<%
+  def wested_stats_card_classes(color_scheme, options)
+    base_classes = %w[
+      wested-stats-card
+      bg-white
+      rounded-xl
+      shadow-sm
+      border
+      border-gray-100
+      overflow-hidden
+      transition-all
+      duration-200
+      hover:shadow-md
+      hover:-translate-y-1
+    ]
+    
+    base_classes << "enterprise-card" if options[:enterprise]
+    base_classes << options[:class] if options[:class]
+    base_classes.join(" ")
+  end
+
+  def wested_icon_container_classes(color_scheme)
+    "w-12 h-12 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4"
+  end
+
+  def wested_color_scheme_gradient(color_scheme)
+    schemes = {
+      primary_blue: [:primary_blue, :navy],
+      primary_green: [:primary_green, 'success-700'],
+      purple: [:purple_2, :purple_1],
+      teal: [:accent_teal, :blue_gray_2],
+      light_blue: [:accent_blue_1, :light_blue],
+      accent_blue: [:accent_blue_2, :primary_blue]
+    }
+    
+    schemes[color_scheme] || schemes[:primary_blue]
+  end
+
+  def trend_indicator_classes(direction)
+    base = "flex items-center space-x-1 text-xs font-medium"
+    case direction.to_s
+    when 'up'
+      "#{base} text-green-600"
+    when 'down'
+      "#{base} text-red-600"
+    else
+      "#{base} text-gray-500"
+    end
+  end
+
+  def trend_icon(direction)
+    case direction.to_s
+    when 'up'
+      content_tag(:svg, class: "w-3 h-3", fill: "currentColor", viewBox: "0 0 20 20") do
+        tag(:path, 'fill-rule': "evenodd", d: "M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z", 'clip-rule': "evenodd")
+      end
+    when 'down'
+      content_tag(:svg, class: "w-3 h-3", fill: "currentColor", viewBox: "0 0 20 20") do
+        tag(:path, 'fill-rule': "evenodd", d: "M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z", 'clip-rule': "evenodd")
+      end
+    else
+      content_tag(:div, "→", class: "text-xs")
+    end
+  end
+
+  def format_stats_value(value)
+    case value
+    when Numeric
+      if value >= 1000
+        number_with_delimiter(value)
+      else
+        value.to_s
+      end
+    else
+      value.to_s
+    end
+  end
+%>
