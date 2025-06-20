@@ -28,7 +28,7 @@
 !/tmp/storage/
 !/tmp/storage/.keep
 
-/public/assets
+# /public/assets  # Temporarily allowing assets in git for deployment fix
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
