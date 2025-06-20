@@ -24,6 +24,15 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
+  # Asset pipeline configuration for production
+  config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.assets.compile = false
+  config.assets.digest = true
+  config.assets.precompile += %w( *.js *.css *.scss )
+  
+  # Configure public file server for assets
+  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   config.assume_ssl = true
 
