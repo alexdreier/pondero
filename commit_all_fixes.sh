@@ -15,8 +15,6 @@ Features:
 - Responsive design for mobile and desktop
 - Account deletion option with confirmation
 
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+"
 git push origin main
 echo "✅ All fixes pushed to GitHub!"

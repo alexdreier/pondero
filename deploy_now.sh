@@ -43,11 +43,7 @@ else
 ✅ Fixed multiple response, likert scale, ranking, and file upload fields
 
 This resolves the critical issue where clicking 'Start Journal' did nothing
-and students couldn't actually input their responses.
-
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+and students couldn't actually input their responses."
 
     # Push changes
     echo "📤 Pushing to remote..."

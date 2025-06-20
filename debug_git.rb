@@ -59,9 +59,7 @@ if run_command("git add .", "Add all changes")
 This resolves the critical issue where clicking 'Start Journal' did nothing
 and students couldn't actually input their responses.
 
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+"
   
   if run_command("git commit -m '#{commit_message}'", "Commit changes")
     puts "Successfully committed changes"

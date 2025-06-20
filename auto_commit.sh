@@ -18,11 +18,7 @@ if git diff --staged --quiet; then
 fi
 
 # Commit with provided message
-git commit -m "$1
-
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+git commit -m "$1"
 
 # Push to GitHub
 git push origin main

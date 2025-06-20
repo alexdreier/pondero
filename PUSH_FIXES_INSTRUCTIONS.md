@@ -41,9 +41,7 @@ git commit -m "Fix critical journal response input functionality
 This resolves the critical issue where clicking 'Start Journal' did nothing
 and students couldn't actually input their responses.
 
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+"
 ```
 
 ### Step 5: Push to GitHub

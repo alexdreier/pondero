@@ -256,9 +256,7 @@ class DeploymentManager
 This resolves the critical issue where clicking 'Start Journal' did nothing
 and students couldn't actually input their responses.
 
-🤖 Generated with Claude Code
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
+"
   end
 
   def run_command(command)
