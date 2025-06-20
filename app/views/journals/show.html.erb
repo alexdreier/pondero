@@ -161,7 +161,7 @@
 
         <div class="p-8">
           <% if @journal.questions.any? %>
-            <%= form_with url: responses_path, local: false, id: "journal-responses-form", class: "space-y-12" do |form| %>
+            <%= form_with url: responses_path, local: false, id: "journal-responses-form", class: "space-y-12 journal-form", data: { auto_save: false } do |form| %>
               <% @journal.questions.ordered.each_with_index do |question, index| %>
                 <div class="border-b border-gray-100 pb-12 last:border-b-0 last:pb-0">
                   <div class="mb-6">
