@@ -1,0 +1,728 @@
+// WestEd Design System
+// Sophisticated Rails-idiomatic CSS architecture
+// Following BEM methodology with WestEd brand compliance
+
+// =============================================================================
+// DESIGN TOKENS
+// =============================================================================
+
+:root {
+  // WestEd Official Brand Colors
+  --wested-primary-blue: #00467F;     // Pantone 541
+  --wested-primary-green: #54B948;    // Pantone 361
+  --wested-purple-1: #3C3675;
+  --wested-purple-2: #5C50C3;
+  --wested-navy: #052054;
+  --wested-blue-gray-1: #64798D;
+  --wested-blue-gray-2: #5A799C;
+  --wested-light-blue: #1669C9;
+  --wested-dark: #010010;
+  
+  // WestEd Accent Colors
+  --wested-accent-blue-1: #7AC4ED;
+  --wested-accent-blue-2: #83B3E9;
+  --wested-accent-teal: #90C5BE;
+  --wested-accent-light-blue: #C8DDF4;
+  --wested-accent-gray: #B5C1CC;
+  --wested-accent-green: #C9F0BA;
+  
+  // Typography System
+  --font-family-headers: 'Neue Haas Grotesk Display Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-family-body: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  
+  // Spacing Scale
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  
+  // Shadow System
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  // Border Radius Scale
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  // Transitions
+  --transition-fast: 0.15s ease-out;
+  --transition-base: 0.2s ease-out;
+  --transition-slow: 0.3s ease-out;
+}
+
+// =============================================================================
+// TYPOGRAPHY SYSTEM
+// =============================================================================
+
+.text-header {
+  font-family: var(--font-family-headers);
+  font-weight: 600;
+}
+
+.text-body {
+  font-family: var(--font-family-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-headers);
+  font-weight: 600;
+  color: var(--wested-dark);
+}
+
+body, p, span, div {
+  font-family: var(--font-family-body);
+}
+
+// =============================================================================
+// WESTED BRANDING COMPONENTS
+// =============================================================================
+
+.wested-branding {
+  .brand-separator {
+    @apply border-l border-gray-300 pl-4;
+  }
+  
+  .pondero-title-block {
+    .pondero-title {
+      @apply text-lg font-semibold;
+      color: var(--wested-primary-blue);
+    }
+    
+    .pondero-subtitle {
+      @apply text-xs;
+      color: var(--wested-blue-gray-1);
+    }
+  }
+}
+
+.wested-logo {
+  transition: transform var(--transition-base);
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+// =============================================================================
+// NAVIGATION SYSTEM
+// =============================================================================
+
+.wested-navigation {
+  .navigation-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+  }
+  
+  .nav-section {
+    @apply mt-8;
+    
+    .nav-section-header {
+      @apply px-3 mb-2;
+      
+      .nav-section-title {
+        @apply text-xs font-semibold uppercase tracking-wider;
+        color: var(--wested-blue-gray-1);
+      }
+    }
+  }
+}
+
+.nav-item {
+  @apply flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200;
+  @apply hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100;
+  @apply text-gray-700 no-underline;
+  margin: var(--space-1) 0;
+  
+  .nav-item-icon {
+    @apply mr-3 flex-shrink-0;
+  }
+  
+  .nav-item-text {
+    @apply flex-1;
+  }
+  
+  .nav-badge {
+    @apply ml-auto;
+  }
+  
+  .nav-item-arrow {
+    @apply ml-2 transition-transform duration-200;
+  }
+  
+  &:hover {
+    transform: translateX(2px);
+    
+    .nav-item-arrow {
+      transform: translateX(2px);
+    }
+  }
+  
+  &.active {
+    background-color: rgba(0, 70, 127, 0.05);
+    color: var(--wested-primary-blue);
+    border-right: 3px solid var(--wested-primary-blue);
+    font-weight: 600;
+    
+    .nav-item-icon {
+      color: var(--wested-primary-blue);
+    }
+  }
+  
+  &.nav-item-submenu {
+    @apply ml-6 text-sm;
+  }
+}
+
+.nav-submenu {
+  @apply ml-6 mt-1 space-y-1;
+  border-left: 2px solid var(--wested-accent-light-blue);
+  padding-left: var(--space-3);
+}
+
+// =============================================================================
+// STATS CARD SYSTEM
+// =============================================================================
+
+.wested-stats-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, #ffffff 100%);
+  border: 1px solid rgba(0, 70, 127, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--wested-primary-blue), var(--wested-accent-blue-1));
+  }
+  
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: rgba(0, 70, 127, 0.2);
+  }
+  
+  .stats-card-content {
+    @apply p-6;
+  }
+  
+  .stats-icon {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center shadow-lg;
+    
+    svg {
+      @apply w-6 h-6 text-white;
+    }
+  }
+  
+  .stats-content {
+    @apply mt-4;
+  }
+  
+  .stats-header {
+    @apply flex items-center justify-between;
+  }
+  
+  .stats-title {
+    @apply text-sm font-medium uppercase tracking-wide;
+    color: var(--wested-blue-gray-1);
+  }
+  
+  .stats-value-container {
+    @apply mt-2;
+  }
+  
+  .stats-value {
+    @apply text-3xl font-bold;
+    color: var(--wested-dark);
+  }
+  
+  .stats-subtitle {
+    @apply text-sm mt-1;
+    color: var(--wested-blue-gray-1);
+  }
+  
+  .stats-progress {
+    @apply mt-4;
+    
+    .progress-bar {
+      @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+      
+      .progress-fill {
+        @apply h-full rounded-full transition-all duration-500;
+      }
+    }
+    
+    .progress-text {
+      @apply text-xs mt-2 block;
+      color: var(--wested-blue-gray-1);
+    }
+  }
+  
+  .stats-actions {
+    @apply px-6 py-3 bg-gray-50 border-t border-gray-100;
+    
+    .stats-action-link {
+      @apply text-sm font-medium hover:underline;
+      color: var(--wested-primary-blue);
+    }
+  }
+}
+
+// Trend indicators
+.trend-indicator {
+  @apply flex items-center space-x-1 text-xs font-medium;
+  
+  &.trend-up {
+    @apply text-green-600;
+  }
+  
+  &.trend-down {
+    @apply text-red-600;
+  }
+  
+  &.trend-neutral {
+    @apply text-gray-500;
+  }
+}
+
+// =============================================================================
+// USER PROFILE COMPONENTS
+// =============================================================================
+
+.user-profile-section {
+  @apply flex items-center;
+  
+  .user-profile-content {
+    @apply flex items-center flex-1;
+  }
+  
+  .user-avatar {
+    @apply relative;
+    
+    .user-avatar-placeholder {
+      background: linear-gradient(135deg, var(--wested-primary-blue) 0%, var(--wested-purple-2) 100%);
+      
+      .user-avatar-initial {
+        @apply text-white font-medium text-sm;
+      }
+    }
+    
+    .user-status-indicator {
+      @apply absolute -bottom-0 -right-0 w-3 h-3 border-2 border-white rounded-full;
+    }
+  }
+  
+  .user-info {
+    @apply ml-3 flex-1 min-w-0;
+    
+    .user-name {
+      @apply text-sm font-medium truncate;
+      color: var(--wested-dark);
+    }
+    
+    .user-role {
+      @apply text-xs truncate;
+      color: var(--wested-blue-gray-1);
+    }
+    
+    .user-stats {
+      @apply mt-1;
+      
+      .user-stat {
+        @apply text-xs;
+        color: var(--wested-blue-gray-1);
+        
+        .user-stat-value {
+          @apply font-medium;
+          color: var(--wested-primary-blue);
+        }
+      }
+    }
+  }
+  
+  .user-actions {
+    @apply flex items-center space-x-1;
+  }
+  
+  .user-action-button {
+    @apply p-2 text-gray-400 hover:text-gray-600 transition-colors duration-200 rounded-lg;
+    @apply hover:bg-gray-100 focus:outline-none focus:bg-gray-100;
+    
+    &.user-signout {
+      @apply hover:text-red-600;
+    }
+  }
+}
+
+// =============================================================================
+// DROPDOWN SYSTEM
+// =============================================================================
+
+.user-dropdown {
+  @apply absolute right-0 bottom-full mb-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200;
+  @apply opacity-0 invisible transform scale-95 transition-all duration-200 z-50;
+  
+  &.show {
+    @apply opacity-100 visible scale-100;
+  }
+  
+  .user-dropdown-content {
+    @apply py-2;
+  }
+  
+  .dropdown-header {
+    @apply px-4 py-3;
+    
+    .dropdown-user-info {
+      .dropdown-user-name {
+        @apply font-medium;
+        color: var(--wested-dark);
+      }
+      
+      .dropdown-user-email {
+        @apply text-sm;
+        color: var(--wested-blue-gray-1);
+      }
+    }
+  }
+  
+  .dropdown-separator {
+    @apply border-t border-gray-100 my-2;
+  }
+  
+  .dropdown-section {
+    @apply px-2;
+    
+    .dropdown-section-title {
+      @apply px-3 py-2 text-xs font-semibold uppercase tracking-wider;
+      color: var(--wested-blue-gray-1);
+    }
+  }
+}
+
+.dropdown-item {
+  @apply flex items-center px-3 py-2 mx-2 text-sm rounded-lg transition-all duration-150;
+  @apply hover:bg-gray-50 focus:outline-none focus:bg-gray-50 no-underline;
+  color: var(--wested-dark);
+  
+  .dropdown-item-icon {
+    @apply mr-3 flex-shrink-0;
+    color: var(--wested-blue-gray-1);
+  }
+  
+  .dropdown-item-content {
+    @apply flex-1 min-w-0;
+    
+    .dropdown-item-header {
+      @apply flex items-center justify-between;
+      
+      .dropdown-item-text {
+        @apply font-medium;
+      }
+      
+      .dropdown-item-shortcut {
+        @apply ml-auto text-xs px-2 py-1 bg-gray-100 rounded;
+        color: var(--wested-blue-gray-1);
+      }
+    }
+    
+    .dropdown-item-description {
+      @apply text-xs mt-1 block;
+      color: var(--wested-blue-gray-1);
+    }
+  }
+  
+  .dropdown-item-arrow {
+    @apply ml-2 text-gray-400;
+  }
+  
+  .dropdown-badge {
+    @apply ml-2;
+  }
+  
+  &:hover {
+    .dropdown-item-icon {
+      color: var(--wested-primary-blue);
+    }
+  }
+  
+  &.dropdown-item-danger {
+    @apply hover:bg-red-50;
+    
+    &:hover {
+      color: #dc2626;
+      
+      .dropdown-item-icon {
+        color: #dc2626;
+      }
+    }
+  }
+  
+  &.dropdown-item-disabled {
+    @apply opacity-50 cursor-not-allowed;
+    
+    &:hover {
+      @apply bg-transparent;
+    }
+  }
+}
+
+// =============================================================================
+// BUTTON SYSTEM
+// =============================================================================
+
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg;
+  @apply transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  
+  &.btn-primary {
+    background-color: var(--wested-primary-blue);
+    @apply text-white hover:shadow-md focus:ring-2;
+    box-shadow: var(--shadow-sm);
+    
+    &:hover:not(:disabled) {
+      background-color: var(--wested-navy);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 70, 127, 0.1);
+    }
+  }
+  
+  &.btn-secondary {
+    @apply bg-white border-gray-300 hover:bg-gray-50;
+    color: var(--wested-blue-gray-2);
+    box-shadow: var(--shadow-sm);
+    
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(0, 70, 127, 0.1);
+    }
+  }
+  
+  &.btn-success {
+    background-color: var(--wested-primary-green);
+    @apply text-white hover:shadow-md;
+    
+    &:hover:not(:disabled) {
+      background-color: #3d8b33;
+    }
+  }
+}
+
+// =============================================================================
+// FORM SYSTEM
+// =============================================================================
+
+.form-input {
+  @apply block w-full rounded-lg border-gray-300 shadow-sm transition-all duration-200;
+  @apply focus:outline-none hover:border-gray-400 placeholder:text-gray-400;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  
+  &:focus {
+    border-color: var(--wested-primary-blue);
+    box-shadow: 0 0 0 3px rgba(0, 70, 127, 0.1);
+  }
+  
+  &.form-input-error {
+    @apply border-red-300;
+    
+    &:focus {
+      @apply border-red-500;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+}
+
+// =============================================================================
+// CARD SYSTEM
+// =============================================================================
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+  @apply transition-all duration-200;
+  
+  &:hover {
+    @apply shadow-md;
+    transform: translateY(-1px);
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-100;
+    background-color: rgba(248, 250, 252, 0.5);
+  }
+  
+  .card-body {
+    @apply p-6;
+  }
+  
+  &.enterprise-card {
+    border-left: 4px solid var(--wested-primary-blue);
+    background: linear-gradient(135deg, rgba(0, 70, 127, 0.02) 0%, white 100%);
+  }
+}
+
+// =============================================================================
+// UTILITY CLASSES
+// =============================================================================
+
+.wested-gradient-primary {
+  background: linear-gradient(135deg, var(--wested-primary-blue) 0%, var(--wested-navy) 100%);
+}
+
+.wested-gradient-success {
+  background: linear-gradient(135deg, var(--wested-primary-green) 0%, #3d8b33 100%);
+}
+
+.wested-gradient-purple {
+  background: linear-gradient(135deg, var(--wested-purple-2) 0%, var(--wested-purple-1) 100%);
+}
+
+.wested-text-primary {
+  color: var(--wested-primary-blue);
+}
+
+.wested-text-secondary {
+  color: var(--wested-blue-gray-1);
+}
+
+.wested-bg-primary {
+  background-color: var(--wested-primary-blue);
+}
+
+.wested-bg-success {
+  background-color: var(--wested-primary-green);
+}
+
+// =============================================================================
+// ANIMATIONS
+// =============================================================================
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// =============================================================================
+// RESPONSIVE DESIGN
+// =============================================================================
+
+@media (max-width: 1024px) {
+  .wested-navigation {
+    .nav-item {
+      @apply px-4 py-3;
+    }
+  }
+  
+  .wested-stats-card {
+    .stats-card-content {
+      @apply p-4;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-dropdown {
+    @apply w-64;
+  }
+  
+  .wested-stats-card {
+    .stats-value {
+      @apply text-2xl;
+    }
+  }
+}
+
+// =============================================================================
+// DARK MODE SUPPORT
+// =============================================================================
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  
+  .card {
+    @apply bg-gray-800 border-gray-700;
+    
+    .card-header {
+      @apply bg-gray-900 border-gray-700;
+    }
+  }
+  
+  .nav-item {
+    @apply text-gray-300 hover:bg-gray-700 hover:text-white;
+    
+    &.active {
+      background-color: rgba(0, 70, 127, 0.2);
+      color: var(--wested-accent-blue-1);
+    }
+  }
+  
+  .user-dropdown {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .dropdown-item {
+    @apply hover:bg-gray-700;
+    color: #f9fafb;
+  }
+}
