@@ -8,10 +8,10 @@ import "@hotwired/stimulus-loading"
 import Sortable from "sortablejs"
 
 // Import auto-save functionality
-import "./auto_save"
+import "auto_save"
 
 // Import accessibility enhancements
-import "./accessibility"
+import "accessibility"
 
 // Make Sortable available globally
 window.Sortable = Sortable
@@ -41,5 +41,4 @@ document.addEventListener("trix-before-initialize", () => {
   }
 })
 
-import "trix"
 import "@rails/actiontext"
