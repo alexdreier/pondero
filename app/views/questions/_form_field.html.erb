@@ -168,10 +168,12 @@ function updateRankingInput(container) {
 let autoSaveTimeout;
 
 function autoSaveResponse(element) {
+  console.log('💾 Auto-save triggered for element:', element);
   clearTimeout(autoSaveTimeout);
   
   // Don't auto-save file uploads
   if (element.type === 'file') {
+    console.log('⏭️ Skipping auto-save for file upload');
     return;
   }
   
@@ -180,9 +182,11 @@ function autoSaveResponse(element) {
   
   autoSaveTimeout = setTimeout(() => {
     const questionId = element.dataset.questionId || element.closest('.question-field').dataset.questionId;
+    console.log('🔍 Question ID:', questionId);
     
     if (!questionId) {
-      console.error('No question ID found for auto-save');
+      console.error('❌ No question ID found for auto-save');
+      showErrorIndicator();
       return;
     }
     
@@ -207,10 +211,13 @@ function autoSaveResponse(element) {
       content = element.value;
     }
     
+    console.log('📝 Content to save:', content);
+    
     formData.append('response[content]', content);
     formData.append('question_id', questionId);
     
     // Send AJAX request
+    console.log('📡 Sending auto-save request to /responses');
     fetch('/responses', {
       method: 'POST',
       body: formData,
@@ -219,8 +226,15 @@ function autoSaveResponse(element) {
         'Accept': 'application/json'
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      console.log('📥 Response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    })
     .then(data => {
+      console.log('✅ Auto-save response:', data);
       if (data.status === 'success') {
         showSavedIndicator();
         // Update completion percentage if available
@@ -229,11 +243,11 @@ function autoSaveResponse(element) {
         }
       } else {
         showErrorIndicator();
-        console.error('Save errors:', data.errors);
+        console.error('❌ Save errors:', data.errors);
       }
     })
     .catch(error => {
-      console.error('Auto-save error:', error);
+      console.error('❌ Auto-save error:', error);
       showErrorIndicator();
     });
   }, 1000); // Auto-save after 1 second of inactivity
@@ -321,22 +335,52 @@ function createSaveIndicator() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Journal response system initializing...');
+  
   const autosaveFields = document.querySelectorAll('[data-autosave="true"]');
-  autosaveFields.forEach(field => {
+  console.log(`📝 Found ${autosaveFields.length} auto-save fields`);
+  
+  if (autosaveFields.length === 0) {
+    console.error('❌ No auto-save fields found! Check if question form fields are rendering correctly.');
+    return;
+  }
+  
+  // Check if autoSaveResponse function exists
+  if (typeof autoSaveResponse !== 'function') {
+    console.error('❌ autoSaveResponse function not found!');
+    return;
+  }
+  
+  // Check CSRF token
+  const csrfToken = document.querySelector('[name="csrf-token"]');
+  if (!csrfToken) {
+    console.error('❌ CSRF token not found!');
+    return;
+  }
+  console.log('✅ CSRF token found');
+  
+  autosaveFields.forEach((field, index) => {
+    console.log(`🔧 Setting up field ${index + 1}: ${field.tagName} (ID: ${field.id})`);
+    
     if (field.tagName === 'TRIX-EDITOR') {
       // Trix editor needs special handling
       field.addEventListener('trix-change', function() {
+        console.log('📝 Trix editor changed, triggering auto-save');
         autoSaveResponse(this);
       });
     } else {
       field.addEventListener('input', function() {
+        console.log('⌨️ Input detected, triggering auto-save');
         autoSaveResponse(this);
       });
       
       field.addEventListener('change', function() {
+        console.log('🔄 Change detected, triggering auto-save');
         autoSaveResponse(this);
       });
     }
   });
+  
+  console.log('✅ Journal response system initialized successfully');
 });
 </script>
