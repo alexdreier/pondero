@@ -2,7 +2,7 @@
 <div class="question-field" data-question-id="<%= question.id %>">
   <% case question.question_type %>
   <% when 'free_text' %>
-    <%= form_with(model: [question.journal, question], url: "/responses", method: :post, local: false) do |form| %>
+    <div class="response-form">
       <trix-editor input="response-content-<%= question.id %>" 
                    class="trix-content"
                    placeholder="Enter your response here..."
@@ -10,34 +10,35 @@
                    data-question-id="<%= question.id %>"></trix-editor>
       <input id="response-content-<%= question.id %>" 
              type="hidden" 
-             name="responses[<%= question.id %>][content]" 
-             value="<%= response&.content %>">
-    <% end %>
+             name="response[content]" 
+             value="<%= response&.content %>"
+             data-question-id="<%= question.id %>"
+             data-autosave="true">
+    </div>
 
   <% when 'single_response' %>
-    <%= form_with(model: [question.journal, question], url: "/responses", method: :post, local: false) do |form| %>
-      <trix-editor input="response-content-single-<%= question.id %>" 
-                   class="trix-content trix-compact"
-                   placeholder="Enter your response..."
-                   data-autosave="true"
-                   data-question-id="<%= question.id %>"></trix-editor>
-      <input id="response-content-single-<%= question.id %>" 
-             type="hidden" 
-             name="responses[<%= question.id %>][content]" 
-             value="<%= response&.content %>">
-    <% end %>
+    <div class="response-form">
+      <textarea id="response-content-single-<%= question.id %>" 
+                name="response[content]" 
+                placeholder="Enter your response..."
+                data-autosave="true"
+                data-question-id="<%= question.id %>"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 min-h-[100px]"
+                ><%= response&.content %></textarea>
+    </div>
 
   <% when 'choice' %>
     <div class="space-y-2">
       <% question.options_array.each do |option| %>
-        <label class="flex items-center">
+        <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200">
           <input type="radio" 
-                 name="responses[<%= question.id %>][content]" 
+                 name="response[content]" 
                  value="<%= option %>"
                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                  data-autosave="true"
+                 data-question-id="<%= question.id %>"
                  <%= 'checked' if response&.content == option %>>
-          <span class="ml-2 text-gray-700"><%= option %></span>
+          <span class="ml-3 text-gray-700"><%= option %></span>
         </label>
       <% end %>
     </div>
@@ -48,10 +49,11 @@
       <% question.options_array.each do |option| %>
         <label class="flex items-center">
           <input type="checkbox" 
-                 name="responses[<%= question.id %>][content][]" 
+                 name="response[content][]" 
                  value="<%= option %>"
                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                  data-autosave="true"
+                 data-question-id="<%= question.id %>"
                  <%= 'checked' if selected_options.include?(option) %>>
           <span class="ml-2 text-gray-700"><%= option %></span>
         </label>
@@ -63,10 +65,11 @@
       <% question.options_array.each_with_index do |option, index| %>
         <label class="flex flex-col items-center text-center">
           <input type="radio" 
-                 name="responses[<%= question.id %>][content]" 
+                 name="response[content]" 
                  value="<%= option %>"
                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mb-1"
                  data-autosave="true"
+                 data-question-id="<%= question.id %>"
                  <%= 'checked' if response&.content == option %>>
           <span class="text-xs text-gray-600 max-w-20 leading-tight"><%= option %></span>
         </label>
@@ -90,18 +93,20 @@
         <% end %>
       </div>
       <input type="hidden" 
-             name="responses[<%= question.id %>][content]" 
+             name="response[content]" 
              id="ranking-input-<%= question.id %>"
              value="<%= response&.content %>"
-             data-autosave="true">
+             data-autosave="true"
+             data-question-id="<%= question.id %>">
     </div>
 
   <% when 'file_upload' %>
     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
       <input type="file" 
-             name="responses[<%= question.id %>][file]" 
+             name="response[file]" 
              class="hidden" 
              id="file-<%= question.id %>"
+             data-question-id="<%= question.id %>"
              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
       <label for="file-<%= question.id %>" class="cursor-pointer">
         <div class="text-gray-400 mb-2">
@@ -165,11 +170,22 @@ let autoSaveTimeout;
 function autoSaveResponse(element) {
   clearTimeout(autoSaveTimeout);
   
+  // Don't auto-save file uploads
+  if (element.type === 'file') {
+    return;
+  }
+  
   // Show saving indicator
   showSavingIndicator();
   
   autoSaveTimeout = setTimeout(() => {
-    const questionId = element.closest('.question-field').dataset.questionId;
+    const questionId = element.dataset.questionId || element.closest('.question-field').dataset.questionId;
+    
+    if (!questionId) {
+      console.error('No question ID found for auto-save');
+      return;
+    }
+    
     const formData = new FormData();
     
     // Get the response content based on element type
@@ -181,6 +197,12 @@ function autoSaveResponse(element) {
       content = element.value;
     } else if (element.type === 'hidden' && element.id.includes('ranking-input')) {
       content = element.value;
+    } else if (element.tagName === 'TEXTAREA') {
+      content = element.value;
+    } else if (element.tagName === 'TRIX-EDITOR') {
+      // Get content from the associated hidden input
+      const hiddenInput = document.getElementById(element.getAttribute('input'));
+      content = hiddenInput ? hiddenInput.value : '';
     } else {
       content = element.value;
     }
@@ -201,8 +223,13 @@ function autoSaveResponse(element) {
     .then(data => {
       if (data.status === 'success') {
         showSavedIndicator();
+        // Update completion percentage if available
+        if (data.completion_percentage !== undefined) {
+          updateCompletionPercentage(data.completion_percentage);
+        }
       } else {
         showErrorIndicator();
+        console.error('Save errors:', data.errors);
       }
     })
     .catch(error => {
@@ -210,6 +237,18 @@ function autoSaveResponse(element) {
       showErrorIndicator();
     });
   }, 1000); // Auto-save after 1 second of inactivity
+}
+
+function updateCompletionPercentage(percentage) {
+  const progressBars = document.querySelectorAll('[class*="completion"]');
+  progressBars.forEach(bar => {
+    if (bar.style && bar.style.width !== undefined) {
+      bar.style.width = percentage + '%';
+    }
+    if (bar.textContent && bar.textContent.includes('%')) {
+      bar.textContent = bar.textContent.replace(/\d+%/, percentage + '%');
+    }
+  });
 }
 
 function showSavingIndicator() {
@@ -284,13 +323,20 @@ function createSaveIndicator() {
 document.addEventListener('DOMContentLoaded', function() {
   const autosaveFields = document.querySelectorAll('[data-autosave="true"]');
   autosaveFields.forEach(field => {
-    field.addEventListener('input', function() {
-      autoSaveResponse(this);
-    });
-    
-    field.addEventListener('change', function() {
-      autoSaveResponse(this);
-    });
+    if (field.tagName === 'TRIX-EDITOR') {
+      // Trix editor needs special handling
+      field.addEventListener('trix-change', function() {
+        autoSaveResponse(this);
+      });
+    } else {
+      field.addEventListener('input', function() {
+        autoSaveResponse(this);
+      });
+      
+      field.addEventListener('change', function() {
+        autoSaveResponse(this);
+      });
+    }
   });
 });
 </script>
