@@ -1,1 +1,6 @@
-# Temporarily removed - let Render auto-detect Rails configuration
+services:
+    - type: web
+      name: pondero
+      env: ruby
+      buildCommand: bundle exec rails db:seed
+      startCommand: bundle exec rails server
