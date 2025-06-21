@@ -28,12 +28,6 @@ class JournalsController < ApplicationController
     Rails.logger.info "Accessible: #{@journal.accessible_to?(current_user)}"
     Rails.logger.info "=========================="
     
-    # TEMPORARY FIX: Update access_level to open for all published journals
-    if @journal.published? && @journal.access_level == 'restricted'
-      @journal.update!(access_level: 'open')
-      Rails.logger.info "FIXED: Updated journal #{@journal.id} access_level from restricted to open"
-    end
-    
     # Check if user can access this journal
     unless @journal.accessible_to?(current_user)
       Rails.logger.info "REDIRECTING: User does not have access"
