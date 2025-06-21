@@ -38,5 +38,8 @@ module Pondero
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+    
+    # Add request logging middleware
+    config.middleware.insert_before ActionDispatch::Static, RequestLoggerMiddleware
   end
 end
