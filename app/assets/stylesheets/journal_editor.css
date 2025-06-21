@@ -1,0 +1,178 @@
+/* Journal Editor Styles - Beautiful Trix Editor Customization */
+
+/* Trix Editor Container */
+trix-editor {
+  @apply rounded-lg border-2 border-gray-300 shadow-sm transition-all duration-200;
+  @apply focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none;
+  @apply min-h-[200px] p-4 bg-white;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #374151;
+}
+
+/* Trix Editor Toolbar */
+trix-toolbar {
+  @apply bg-gray-50 border-b-2 border-gray-200 rounded-t-lg p-2;
+  @apply sticky top-0 z-10;
+}
+
+/* Toolbar Button Groups */
+trix-toolbar .trix-button-group {
+  @apply border-r border-gray-300 mr-2 pr-2 last:border-r-0 last:mr-0 last:pr-0;
+}
+
+/* Toolbar Buttons */
+trix-toolbar .trix-button {
+  @apply text-gray-700 bg-transparent hover:bg-gray-200 hover:text-gray-900;
+  @apply rounded px-3 py-1.5 transition-all duration-150;
+  @apply text-sm font-medium;
+  border: none !important;
+  margin: 0 1px;
+}
+
+/* Active Toolbar Button */
+trix-toolbar .trix-button--icon-bold.trix-active,
+trix-toolbar .trix-button--icon-italic.trix-active,
+trix-toolbar .trix-button--icon-strike.trix-active,
+trix-toolbar .trix-button--icon-link.trix-active,
+trix-toolbar .trix-button--icon-bullet-list.trix-active,
+trix-toolbar .trix-button--icon-number-list.trix-active,
+trix-toolbar .trix-button--icon-decrease-nesting-level.trix-active,
+trix-toolbar .trix-button--icon-increase-nesting-level.trix-active,
+trix-toolbar .trix-button.trix-active {
+  @apply bg-blue-100 text-blue-700;
+}
+
+/* Toolbar Button Icons */
+trix-toolbar .trix-button::before {
+  @apply text-base;
+}
+
+/* Hide unwanted toolbar buttons */
+trix-toolbar .trix-button--icon-attach,
+trix-toolbar .trix-button--icon-code,
+trix-toolbar .trix-button--icon-heading-1 {
+  display: none !important;
+}
+
+/* Trix Editor Content */
+trix-editor [data-trix-mutable="true"] {
+  user-select: text;
+}
+
+/* Editor Typography */
+trix-editor h1 {
+  @apply text-2xl font-bold mb-4 text-gray-900;
+}
+
+trix-editor p {
+  @apply mb-4;
+}
+
+trix-editor ul,
+trix-editor ol {
+  @apply ml-6 mb-4;
+}
+
+trix-editor ul {
+  @apply list-disc;
+}
+
+trix-editor ol {
+  @apply list-decimal;
+}
+
+trix-editor li {
+  @apply mb-2;
+}
+
+trix-editor a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+
+trix-editor blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-700 my-4;
+}
+
+/* Editor Placeholder */
+trix-editor:empty:not(:focus)::before {
+  @apply text-gray-400;
+  content: attr(placeholder);
+}
+
+/* Radio and Checkbox Styles */
+input[type="radio"] {
+  @apply w-5 h-5 text-blue-600 border-2 border-gray-300 focus:ring-4 focus:ring-blue-100 transition-all duration-150;
+}
+
+input[type="checkbox"] {
+  @apply w-5 h-5 text-blue-600 border-2 border-gray-300 rounded focus:ring-4 focus:ring-blue-100 transition-all duration-150;
+}
+
+/* Likert Scale Styles */
+.likert-scale-container {
+  @apply flex justify-between items-center gap-4 py-8 px-4;
+}
+
+.likert-option {
+  @apply flex flex-col items-center flex-1 cursor-pointer;
+}
+
+.likert-option input[type="radio"] {
+  @apply mb-3;
+}
+
+.likert-option label {
+  @apply text-sm text-center text-gray-700 font-medium;
+}
+
+.likert-option:hover label {
+  @apply text-blue-600;
+}
+
+/* Form Field Labels */
+.form-field-label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+/* Success Message */
+.response-saved-indicator {
+  @apply text-sm text-green-600 font-medium flex items-center;
+}
+
+/* Error Messages */
+.field-error {
+  @apply text-sm text-red-600 mt-1;
+}
+
+/* Question Card Hover Effects */
+.question-card {
+  @apply transform transition-all duration-200;
+}
+
+.question-card:hover {
+  @apply -translate-y-0.5;
+}
+
+/* Auto-save Indicator */
+.auto-save-indicator {
+  @apply fixed bottom-8 right-8 bg-white rounded-lg shadow-lg px-4 py-3;
+  @apply border border-gray-200 flex items-center gap-2;
+  @apply transition-all duration-300 opacity-0 invisible;
+}
+
+.auto-save-indicator.active {
+  @apply opacity-100 visible;
+}
+
+.auto-save-indicator.saving {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.auto-save-indicator.saved {
+  @apply bg-green-50 border-green-200;
+}
+
+.auto-save-indicator.error {
+  @apply bg-red-50 border-red-200;
+}
