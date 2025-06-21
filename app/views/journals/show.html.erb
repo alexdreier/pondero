@@ -84,9 +84,9 @@
         <div class="flex flex-wrap gap-4">
           <% if current_user.learner? %>
             <% if @journal.questions.any? %>
-              <a href="#journal-questions" 
+              <a href="#journal-questions"
                  class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 shadow-sm transition-all duration-200"
-                 onclick="document.getElementById('journal-questions').scrollIntoView({behavior: 'smooth'})">
+                 data-turbo="false">
                 <i class="fas fa-play mr-3"></i>
                 Start Answering
               </a>
@@ -145,7 +145,7 @@
   <main class="max-w-7xl mx-auto px-6 py-8">
     <% if current_user.learner? %>
       <!-- Learner View: Show Journal Questions -->
-      <div id="journal-questions" class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+      <div id="journal-questions" class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden" tabindex="-1">
         <div class="px-8 py-6 border-b border-gray-200 bg-gray-50">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 class="text-2xl font-bold text-gray-900">
