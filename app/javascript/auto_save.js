@@ -84,7 +84,15 @@ class AutoSave {
 
     // Add auto-save indicator
     formData.append('auto_save', 'true');
-    formData.append('authenticity_token', this.getCSRFToken());
+    
+    // Ensure CSRF token is present
+    const csrfToken = this.getCSRFToken();
+    if (!csrfToken) {
+      console.error('CSRF token not found - auto-save will fail');
+      this.showSaveIndicator(form, 'error');
+      return Promise.reject(new Error('CSRF token not available'));
+    }
+    formData.append('authenticity_token', csrfToken);
 
     const savePromise = this.performSave(form, formData, formId, currentContent);
 
@@ -120,6 +128,17 @@ class AutoSave {
         this.updateLastSavedTimestamp(form);
         
         return true;
+      } else if (response.status === 422) {
+        // CSRF token is likely invalid/expired
+        console.error('CSRF token validation failed - refreshing page');
+        this.showSaveIndicator(form, 'error');
+        // Optionally reload the page to get a fresh CSRF token
+        setTimeout(() => {
+          if (confirm('Your session may have expired. Refresh the page to continue?')) {
+            window.location.reload();
+          }
+        }, 2000);
+        throw new Error('CSRF token validation failed');
       } else {
         throw new Error(`Save failed with status: ${response.status}`);
       }
