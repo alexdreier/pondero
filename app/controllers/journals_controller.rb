@@ -16,19 +16,19 @@ class JournalsController < ApplicationController
   end
 
   def show
-    Rails.logger.info "=== JOURNALS#SHOW START ==="
-    Rails.logger.info "Journal ID: #{@journal.id}"
-    Rails.logger.info "Current user: #{current_user&.email}"
-    Rails.logger.info "Accessible?: #{@journal.accessible_to?(current_user)}"
+    Rails.logger.error "!!! JOURNALS#SHOW REACHED - THIS SHOULD APPEAR IN LOGS !!!"
+    Rails.logger.error "Journal ID: #{@journal.id}"
+    Rails.logger.error "Current user: #{current_user&.email}"
+    Rails.logger.error "Accessible?: #{@journal.accessible_to?(current_user)}"
     
     # Check if user can access this journal
     unless @journal.accessible_to?(current_user)
-      Rails.logger.info "REDIRECTING: Access denied"
+      Rails.logger.error "!!! REDIRECTING: Access denied !!!"
       redirect_to journals_path, alert: 'You do not have access to this journal.'
       return
     end
     
-    Rails.logger.info "ACCESS GRANTED: Proceeding to show view"
+    Rails.logger.error "!!! ACCESS GRANTED: Proceeding to show view !!!"
     
     if current_user.learner?
       # Check if user can respond to this journal
