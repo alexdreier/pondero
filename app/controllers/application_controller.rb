@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
   include ErrorHandling
   
   before_action :log_request_info
-  before_action :authenticate_user!, unless: :skip_authentication?
+  before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :set_current_user_for_logging
   before_action :check_maintenance_mode
@@ -18,11 +18,6 @@ class ApplicationController < ActionController::Base
 
   def log_request_info
     Rails.logger.error "!!! REQUEST: #{request.method} #{request.fullpath} - Controller: #{controller_name}##{action_name} !!!"
-  end
-
-  def skip_authentication?
-    # Temporarily skip authentication for journal show to test if that's the issue
-    controller_name == 'journals' && action_name == 'show'
   end
 
   def configure_permitted_parameters

@@ -76,4 +76,9 @@ class FixController < ApplicationController
     
     render plain: result
   end
+  
+  def test_route
+    Rails.logger.error "!!! TEST_ROUTE REACHED - This should appear in logs !!!"
+    render plain: "Test route reached successfully. User: #{current_user&.email}"
+  end
 end
