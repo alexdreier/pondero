@@ -72,6 +72,9 @@ Rails.application.routes.draw do
   # Dashboard route
   get 'dashboard', to: 'dashboard#index'
   
+  # Temporary fix route (remove after use)
+  get 'fix_journals', to: 'application#fix_journals'
+  
   # Defines the root path route ("/")
   root "dashboard#index"
 end
