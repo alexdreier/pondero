@@ -7,8 +7,15 @@ import "@hotwired/stimulus-loading"
 // Import Sortable for drag-and-drop functionality
 import Sortable from "sortablejs"
 
-// Import auto-save functionality
-import "auto_save"
+// Import simplified auto-save functionality
+import "simple_auto_save"
+
+// Import UI modules
+import "mobile_menu"
+import "dark_mode"
+import "toast_notifications"
+import "form_validation"
+import "loading_overlay"
 
 // Import accessibility enhancements
 // import "accessibility" // Temporarily disabled - causing UI issues

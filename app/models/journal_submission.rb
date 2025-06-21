@@ -23,22 +23,11 @@ class JournalSubmission < ApplicationRecord
     status == 'submitted'
   end
 
-  def completion_percentage
-    return 0 if journal.questions.empty?
-    
-    required_questions = journal.questions.where(required: true).count
-    return 100 if required_questions == 0
-    
-    # Count responses for required questions that have non-empty content
-    answered_questions = user.responses.joins(:question)
-                                      .where(questions: { journal: journal, required: true })
-                                      .select { |response| response.content.present? && response.content.to_plain_text.strip.present? }
-                                      .count
-    
-    (answered_questions.to_f / required_questions * 100).round
-  end
+  include CompletionCalculable
 
-  def all_required_answered?
-    completion_percentage == 100
+  private
+
+  def completion_responses
+    user.responses.joins(:question).where(questions: { journal: journal, required: true })
   end
 end

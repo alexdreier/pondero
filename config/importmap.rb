@@ -2,7 +2,12 @@
 
 pin "application", preload: true
 pin "accessibility"
-pin "auto_save"
+pin "simple_auto_save"
+pin "mobile_menu"
+pin "dark_mode"
+pin "toast_notifications"
+pin "form_validation"
+pin "loading_overlay"
 pin "trix" # @2.1.15
 pin "@hotwired/turbo-rails", to: "turbo.min.js"
 pin "@hotwired/stimulus", to: "stimulus.min.js"
