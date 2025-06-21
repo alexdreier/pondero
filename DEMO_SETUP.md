@@ -11,7 +11,7 @@
 
 ```bash
 # Navigate to the project
-cd /Users/alexdreier/Desktop/journal2/pondero
+cd /Users/alexdreier/Documents/GitHub/pondero/pondero
 
 # Install dependencies
 bundle install
@@ -209,7 +209,7 @@ rails assets:precompile
 #### Permission Issues
 ```bash
 # Fix file permissions
-chmod -R 755 /Users/alexdreier/Desktop/journal2/pondero
+chmod -R 755 /Users/alexdreier/Documents/GitHub/pondero/pondero
 ```
 
 ## 📱 Mobile Demo
