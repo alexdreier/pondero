@@ -74,6 +74,7 @@ Rails.application.routes.draw do
   
   # Temporary fix route (remove after use)
   get 'fix_journals', to: 'fix#journals'
+  get 'test_journal_access', to: 'fix#test_journal_access'
   
   # Defines the root path route ("/")
   root "dashboard#index"

@@ -46,4 +46,34 @@ class FixController < ApplicationController
     
     render plain: result
   end
+  
+  def test_journal_access
+    # Simulate a learner accessing journal 1
+    learner = User.find_by(email: 'learner@pondero.demo')
+    journal = Journal.find(1)
+    
+    # Temporarily log in as learner for this test
+    sign_in(learner)
+    
+    # Now test the exact same logic as the journals controller
+    result = "SIMULATING JOURNAL ACCESS AS LEARNER:\n\n"
+    
+    # Test current_user
+    result += "current_user: #{current_user&.email}\n"
+    result += "current_user.learner?: #{current_user&.learner?}\n"
+    result += "\n"
+    
+    # Test the accessibility check
+    result += "journal.accessible_to?(current_user): #{journal.accessible_to?(current_user)}\n"
+    
+    # Test what happens in the journals controller show action
+    if journal.accessible_to?(current_user)
+      result += "SUCCESS: Should proceed to journal show page\n"
+      result += "Journal can_respond?: #{journal.can_respond?(current_user)}\n"
+    else
+      result += "FAILURE: Would redirect to journals_path\n"
+    end
+    
+    render plain: result
+  end
 end
