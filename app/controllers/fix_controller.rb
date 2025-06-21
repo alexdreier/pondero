@@ -1,6 +1,6 @@
 class FixController < ApplicationController
   def journals
-    return render plain: "Access denied" unless current_user&.administrator?
+    return render plain: "Access denied" unless current_user&.role == 'administrator'
     
     journals_updated = 0
     Journal.where(published: true, access_level: 'restricted').find_each do |journal|
