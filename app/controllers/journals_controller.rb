@@ -188,7 +188,9 @@ class JournalsController < ApplicationController
   private
 
   def set_journal
+    Rails.logger.error "!!! SET_JOURNAL CALLED - params[:id] = #{params[:id]} !!!"
     @journal = Journal.find(params[:id])
+    Rails.logger.error "!!! SET_JOURNAL FOUND JOURNAL #{@journal.id}: #{@journal.title} !!!"
   end
 
   def journal_params
