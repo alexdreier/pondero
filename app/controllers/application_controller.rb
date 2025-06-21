@@ -75,6 +75,14 @@ class ApplicationController < ActionController::Base
     UserActivityLog.create!(activity_data) if defined?(UserActivityLog)
   end
 
+  # Performance tracking for enterprise monitoring
+  def track_performance
+    start_time = Time.current
+    yield
+    duration = ((Time.current - start_time) * 1000).round(2)
+    Rails.logger.info("[PONDERO_PERFORMANCE] #{controller_name}##{action_name} completed in #{duration}ms")
+  end
+
   # Content Security Policy for enhanced security
   def set_content_security_policy
     response.headers['Content-Security-Policy'] = [
