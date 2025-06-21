@@ -11,7 +11,7 @@
       <input id="response-content-<%= question.id %>" 
              type="hidden" 
              name="response[content]" 
-             value="<%= response&.content %>"
+             value="<%= response&.content&.to_s %>"
              data-question-id="<%= question.id %>"
              data-autosave="true">
     </div>
@@ -24,7 +24,7 @@
                 data-autosave="true"
                 data-question-id="<%= question.id %>"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 min-h-[100px]"
-                ><%= response&.content %></textarea>
+                ><%= response&.content&.to_s %></textarea>
     </div>
 
   <% when 'choice' %>
@@ -79,7 +79,7 @@
   <% when 'ranking' %>
     <div class="space-y-2">
       <p class="text-sm text-gray-600 mb-2">Drag to reorder, or use the dropdowns to rank these options:</p>
-      <% ranked_options = response&.content&.split(',') || question.options_array %>
+      <% ranked_options = response&.content&.to_s&.split(',') || question.options_array %>
       <div id="ranking-<%= question.id %>" class="space-y-2">
         <% ranked_options.each_with_index do |option, index| %>
           <div class="flex items-center bg-gray-50 p-2 rounded border ranking-item" data-option="<%= option %>">
@@ -95,7 +95,7 @@
       <input type="hidden" 
              name="response[content]" 
              id="ranking-input-<%= question.id %>"
-             value="<%= response&.content %>"
+             value="<%= response&.content&.to_s %>"
              data-autosave="true"
              data-question-id="<%= question.id %>">
     </div>
@@ -118,7 +118,7 @@
         <p class="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG, GIF up to 10MB</p>
       </label>
       <% if response&.content.present? %>
-        <p class="text-sm text-gray-600 mt-2">Current file: <%= response.content %></p>
+        <p class="text-sm text-gray-600 mt-2">Current file: <%= response.content.to_s %></p>
       <% end %>
     </div>
 
