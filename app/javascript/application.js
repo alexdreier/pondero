@@ -8,9 +8,10 @@ import "@hotwired/stimulus-loading"
 import Sortable from "sortablejs"
 
 // Import auto-save functionality
+import "auto_save"
 
 // Import accessibility enhancements
-import "accessibility"
+// import "accessibility" // Temporarily disabled - causing UI issues
 
 // Make Sortable available globally
 window.Sortable = Sortable
