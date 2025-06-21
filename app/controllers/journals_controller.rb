@@ -16,21 +16,8 @@ class JournalsController < ApplicationController
   end
 
   def show
-    # Debug logging
-    Rails.logger.info "=== JOURNAL SHOW DEBUG ==="
-    Rails.logger.info "Journal ID: #{@journal.id}"
-    Rails.logger.info "Journal Title: #{@journal.title}"
-    Rails.logger.info "Journal visibility: #{@journal.visibility}"
-    Rails.logger.info "Journal access_level: #{@journal.access_level}"
-    Rails.logger.info "Journal published: #{@journal.published?}"
-    Rails.logger.info "Current User: #{current_user&.email} (#{current_user&.role})"
-    Rails.logger.info "visible_to?(user): #{@journal.visible_to?(current_user)}"
-    Rails.logger.info "Accessible: #{@journal.accessible_to?(current_user)}"
-    Rails.logger.info "=========================="
-    
     # Check if user can access this journal
     unless @journal.accessible_to?(current_user)
-      Rails.logger.info "REDIRECTING: User does not have access"
       redirect_to journals_path, alert: 'You do not have access to this journal.'
       return
     end
@@ -193,11 +180,7 @@ class JournalsController < ApplicationController
   private
 
   def set_journal
-    Rails.logger.info "=== SET_JOURNAL DEBUG ==="
-    Rails.logger.info "Finding journal with ID: #{params[:id]}"
     @journal = Journal.find(params[:id])
-    Rails.logger.info "Found journal: #{@journal.title}"
-    Rails.logger.info "========================"
   end
 
   def journal_params
