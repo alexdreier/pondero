@@ -83,18 +83,6 @@ class ApplicationController < ActionController::Base
     Rails.logger.info("[PONDERO_PERFORMANCE] #{controller_name}##{action_name} completed in #{duration}ms")
   end
 
-  # Temporary fix endpoint - remove after use
-  def fix_journals
-    return render plain: "Access denied" unless current_user&.administrator?
-    
-    journals_updated = 0
-    Journal.where(published: true, access_level: 'restricted').find_each do |journal|
-      journal.update!(access_level: 'open')
-      journals_updated += 1
-    end
-    
-    render plain: "Updated #{journals_updated} journals from 'restricted' to 'open' access_level. Start Journal buttons should now work."
-  end
 
   # Content Security Policy for enhanced security
   def set_content_security_policy
