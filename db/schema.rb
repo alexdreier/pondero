@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_21_172843) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,6 +58,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["journal_submission_id", "created_at"], name: "index_comments_on_journal_submission_id_and_created_at"
     t.index ["journal_submission_id"], name: "index_comments_on_journal_submission_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -86,6 +87,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
     t.string "status", default: "in_progress"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["journal_id", "user_id"], name: "index_journal_submissions_on_journal_id_and_user_id"
     t.index ["journal_id"], name: "index_journal_submissions_on_journal_id"
     t.index ["user_id"], name: "index_journal_submissions_on_user_id"
   end
@@ -112,8 +114,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
     t.index ["access_level"], name: "index_journals_on_access_level"
     t.index ["canvas_course_id"], name: "index_journals_on_canvas_course_id"
     t.index ["lti_enabled"], name: "index_journals_on_lti_enabled"
+    t.index ["published"], name: "index_journals_on_published"
     t.index ["theme_id"], name: "index_journals_on_theme_id"
+    t.index ["user_id", "published"], name: "index_journals_on_user_id_and_published"
     t.index ["user_id"], name: "index_journals_on_user_id"
+    t.index ["visibility", "published"], name: "index_journals_on_visibility_and_published"
     t.index ["visibility"], name: "index_journals_on_visibility"
   end
 
@@ -127,7 +132,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "section_id"
+    t.index ["journal_id", "position"], name: "index_questions_on_journal_id_and_position"
     t.index ["journal_id"], name: "index_questions_on_journal_id"
+    t.index ["question_type"], name: "index_questions_on_question_type"
     t.index ["section_id"], name: "index_questions_on_section_id"
   end
 
@@ -143,6 +150,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
     t.index ["journal_entry_id", "question_id"], name: "index_responses_on_journal_entry_id_and_question_id", unique: true
     t.index ["journal_entry_id"], name: "index_responses_on_journal_entry_id"
     t.index ["question_id"], name: "index_responses_on_question_id"
+    t.index ["user_id", "question_id"], name: "index_responses_on_user_id_and_question_id"
     t.index ["user_id"], name: "index_responses_on_user_id"
   end
 
@@ -183,6 +191,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_192517) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["lti_user_id"], name: "index_users_on_lti_user_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["role"], name: "index_users_on_role"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

@@ -334,7 +334,7 @@ journal_templates.each_with_index do |template_data, index|
     j.published = true
     j.position = index + 1
     j.status = "published"
-    j.visibility = "public"
+    j.visibility = "public_access"
     j.available_from = 2.weeks.ago
     j.available_until = 2.weeks.from_now
   end
@@ -360,7 +360,7 @@ instructor_journals.each_with_index do |journal_data, index|
     j.published = journal_data[:published]
     j.position = index + 100  # Use different position range to avoid conflicts
     j.status = journal_data[:published] ? "published" : "draft"
-    j.visibility = "private"
+    j.visibility = "private_access"
     j.available_from = 1.week.ago
     j.available_until = 1.month.from_now
   end
