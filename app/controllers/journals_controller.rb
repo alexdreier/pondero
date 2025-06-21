@@ -189,7 +189,11 @@ class JournalsController < ApplicationController
   private
 
   def set_journal
+    Rails.logger.info "=== SET_JOURNAL DEBUG ==="
+    Rails.logger.info "Finding journal with ID: #{params[:id]}"
     @journal = Journal.find(params[:id])
+    Rails.logger.info "Found journal: #{@journal.title}"
+    Rails.logger.info "========================"
   end
 
   def journal_params
