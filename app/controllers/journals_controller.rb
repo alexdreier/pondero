@@ -5,7 +5,7 @@ class JournalsController < ApplicationController
   def index
     if current_user.learner?
       # Show available journals for learners based on visibility
-      @journals = Journal.published.where(visibility: ['public', 'unlisted'])
+      @journals = Journal.published.where(visibility: ['public_access', 'unlisted'])
     elsif current_user.administrator?
       # Administrators can see ALL journals in the system
       @journals = Journal.includes(:theme, :questions, :user).order(created_at: :desc)

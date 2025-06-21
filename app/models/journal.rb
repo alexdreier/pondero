@@ -53,11 +53,11 @@ class Journal < ApplicationRecord
     return true if user.administrator?        # Admins can see all
     
     case visibility
-    when 'public'
+    when 'public_access'
       published?
     when 'unlisted'
       published?  # Accessible if they have the link
-    when 'private'
+    when 'private_access'
       false       # Only creator and admins
     else
       false
