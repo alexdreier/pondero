@@ -20,7 +20,11 @@ class JournalsController < ApplicationController
     Rails.logger.info "=== JOURNAL SHOW DEBUG ==="
     Rails.logger.info "Journal ID: #{@journal.id}"
     Rails.logger.info "Journal Title: #{@journal.title}"
+    Rails.logger.info "Journal visibility: #{@journal.visibility}"
+    Rails.logger.info "Journal access_level: #{@journal.access_level}"
+    Rails.logger.info "Journal published: #{@journal.published?}"
     Rails.logger.info "Current User: #{current_user&.email} (#{current_user&.role})"
+    Rails.logger.info "visible_to?(user): #{@journal.visible_to?(current_user)}"
     Rails.logger.info "Accessible: #{@journal.accessible_to?(current_user)}"
     Rails.logger.info "=========================="
     
