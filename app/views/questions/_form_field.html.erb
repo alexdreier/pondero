@@ -45,7 +45,7 @@
 
   <% when 'multiple_response' %>
     <div class="space-y-2">
-      <% selected_options = response&.content&.split(',') || [] %>
+      <% selected_options = response&.content&.to_s&.split(',') || [] %>
       <% question.options_array.each do |option| %>
         <label class="flex items-center">
           <input type="checkbox" 
