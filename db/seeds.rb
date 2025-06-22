@@ -381,7 +381,59 @@ end
 # Create extensive journal submissions and responses
 published_journals = all_journals.select(&:published)
 
-learners.each do |student|
+# Separate main demo student from other students
+main_demo_student = learners.find { |l| l.email == "learner@pondero.demo" }
+other_students = learners.reject { |l| l.email == "learner@pondero.demo" }
+
+# For main demo student - only 1-2 partial responses to show authentic student experience
+if main_demo_student
+  # Give demo student partial progress on just one journal (Weekly Learning Reflection)
+  demo_journal = published_journals.find { |j| j.title == "Weekly Learning Reflection" }
+  if demo_journal
+    submission = demo_journal.journal_submissions.find_or_create_by!(user: main_demo_student) do |sub|
+      sub.status = 'in_progress'
+      sub.completed_at = nil
+    end
+
+    # Answer only first 2 questions to show partial progress
+    demo_journal.questions.limit(2).each_with_index do |question, index|
+      response_content = case question.question_type
+      when 'free_text'
+        if index == 0
+          "This week I learned about research methodologies and how they apply to real-world problems. I'm still working through some of the more complex statistical concepts, but I'm making good progress with the qualitative analysis techniques."
+        else
+          "" # Leave second response empty to show partial progress
+        end
+      when 'likert_scale'
+        "3"  # Show moderate confidence
+      when 'multiple_response'
+        if question.options_array&.any?
+          question.options_array.sample(1).join(', ')
+        end
+      when 'single_response'
+        if question.options_array&.any?
+          question.options_array.first
+        else
+          "In progress..."
+        end
+      else
+        index == 0 ? "Working on this response..." : ""
+      end
+
+      # Only create response if there's content
+      if response_content.present?
+        Response.find_or_create_by!(user: main_demo_student, question: question) do |response|
+          response.content = response_content
+          response.status = 'draft'
+          response.submitted_at = nil
+        end
+      end
+    end
+  end
+end
+
+# For all other students - create rich, diverse sample data
+other_students.each do |student|
   # Each student completes 60-80% of available journals
   journals_to_complete = published_journals.sample((published_journals.length * 0.6).to_i + rand(0...(published_journals.length * 0.2).to_i))
   
@@ -404,13 +456,19 @@ learners.each do |student|
           
           "The #{['hands-on experience', 'group discussions', 'case study analysis', 'practical applications', 'peer feedback'].sample} was particularly valuable because it #{['made abstract concepts concrete', 'provided multiple perspectives', 'allowed for immediate application', 'built collaborative skills', 'enhanced critical thinking'].sample}. I plan to #{['continue this approach', 'apply these insights in future work', 'share this strategy with others', 'build on this foundation'].sample}.",
           
-          "Reflecting on my #{['professional development', 'skill acquisition', 'learning process', 'growth mindset', 'goal achievement'].sample}, I recognize that #{['consistent practice is essential', 'feedback is invaluable', 'self-reflection drives improvement', 'collaboration enhances learning', 'challenges promote growth'].sample}. Moving forward, I will focus on #{['maintaining momentum', 'seeking new challenges', 'supporting others', 'continuous improvement', 'applying what I\'ve learned'].sample}."
+          "Reflecting on my #{['professional development', 'skill acquisition', 'learning process', 'growth mindset', 'goal achievement'].sample}, I recognize that #{['consistent practice is essential', 'feedback is invaluable', 'self-reflection drives improvement', 'collaboration enhances learning', 'challenges promote growth'].sample}. Moving forward, I will focus on #{['maintaining momentum', 'seeking new challenges', 'supporting others', 'continuous improvement', 'applying what I\'ve learned'].sample}.",
+
+          "Working on this project has been incredibly enlightening. I've discovered that #{['collaboration enhances creativity', 'different perspectives lead to better solutions', 'systematic planning improves outcomes', 'regular reflection accelerates learning'].sample}. The most challenging aspect was #{['coordinating with team members', 'managing conflicting viewpoints', 'staying organized with multiple deadlines', 'balancing theoretical knowledge with practical application'].sample}, but I overcame this by #{['establishing clear communication protocols', 'creating structured meeting agendas', 'using project management tools', 'seeking guidance from mentors'].sample}.",
+
+          "During this clinical rotation, I observed the importance of #{['patient-centered care', 'interdisciplinary collaboration', 'evidence-based practice', 'continuous learning', 'professional communication'].sample}. One particularly meaningful experience involved #{['helping a patient understand their treatment plan', 'collaborating with a multidisciplinary team', 'applying theoretical knowledge in a real-world setting', 'receiving feedback from experienced practitioners'].sample}. This taught me that #{['empathy is as important as technical skills', 'teamwork improves patient outcomes', 'learning never stops in healthcare', 'communication can make or break patient relationships'].sample}.",
+
+          "This research experience has transformed my understanding of #{['the scientific method', 'data analysis techniques', 'literature review processes', 'research ethics', 'academic writing'].sample}. Initially, I struggled with #{['formulating research questions', 'analyzing complex datasets', 'synthesizing multiple sources', 'presenting findings clearly'].sample}. However, through consistent effort and mentorship, I developed skills in #{['critical analysis', 'systematic investigation', 'clear communication', 'ethical research practices'].sample}. I'm excited to apply these skills in future projects."
         ]
         realistic_responses.sample
         
       when 'likert_scale'
-        # Weighted toward positive responses
-        weighted_options = ['2', '3', '3', '4', '4', '4', '5', '5']
+        # Weighted toward positive responses but with realistic variation
+        weighted_options = ['1', '2', '2', '3', '3', '3', '4', '4', '4', '4', '5', '5']
         weighted_options.sample
         
       when 'multiple_response'
@@ -432,13 +490,22 @@ learners.each do |student|
             rand(1..7).days.ago.strftime("%B %d, %Y")
           when /grade|level/
             ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"].sample
+          when /location/
+            ["City Hospital Emergency Department", "Community Health Center", "University Research Lab", "Regional Medical Center", "Local Elementary School", "Corporate Training Facility"].sample
+          when /course|class/
+            ["Introduction to Psychology", "Advanced Statistics", "Research Methods", "Clinical Practice", "Leadership Development", "Community Health"].sample
           else
-            "Sample response"
+            "Sample response for #{question.question_type}"
           end
         end
         
       else
         "Thoughtful response for #{question.question_type} question"
+      end
+
+      # Skip some responses to create realistic completion patterns
+      if submission_status == 'in_progress' && rand < 0.3  # 30% chance to skip question if in progress
+        next
       end
 
       Response.find_or_create_by!(user: student, question: question) do |response|
@@ -461,7 +528,13 @@ learners.each do |student|
         
         "Thank you for this thorough and thoughtful reflection. Your #{['detailed analysis', 'honest self-assessment', 'strategic thinking', 'commitment to growth'].sample} is commendable. I encourage you to #{['continue this level of reflection', 'share your insights with peers', 'apply these strategies in other contexts', 'build on these strengths'].sample}. Your progress is evident and inspiring.",
         
-        "Your reflection shows great depth and self-awareness. The way you've analyzed your #{['learning process', 'skill development', 'professional growth', 'challenge-solving approach'].sample} provides valuable insights. I particularly noted your #{['strategic approach to obstacles', 'integration of feedback', 'proactive learning mindset', 'collaborative spirit'].sample}. This level of reflection will serve you well in your future endeavors."
+        "Your reflection shows great depth and self-awareness. The way you've analyzed your #{['learning process', 'skill development', 'professional growth', 'challenge-solving approach'].sample} provides valuable insights. I particularly noted your #{['strategic approach to obstacles', 'integration of feedback', 'proactive learning mindset', 'collaborative spirit'].sample}. This level of reflection will serve you well in your future endeavors.",
+
+        "I'm impressed by the depth of your analysis and the connections you've made. Your response demonstrates #{['strong analytical thinking', 'excellent self-reflection skills', 'professional maturity', 'commitment to growth'].sample}. The way you've addressed challenges shows resilience and problem-solving abilities. Your insights about #{['teamwork', 'communication', 'leadership', 'professional development'].sample} are particularly valuable and will serve you well in your career.",
+
+        "This is a thoughtful and comprehensive reflection. You've done an excellent job of #{['connecting theory to practice', 'analyzing your learning process', 'identifying areas for growth', 'demonstrating self-awareness'].sample}. Your honest assessment of both strengths and challenges shows maturity. I especially appreciate your #{['specific examples', 'actionable insights', 'professional perspective', 'commitment to continuous improvement'].sample}. Keep up this excellent work!",
+
+        "Your reflection demonstrates significant progress in #{['critical thinking skills', 'professional development', 'self-awareness', 'communication abilities'].sample}. The depth of your analysis and your ability to #{['synthesize complex information', 'identify key insights', 'connect concepts', 'plan for future application'].sample} is commendable. Your growth throughout this experience is evident and inspiring."
       ]
       
       Comment.find_or_create_by!(user: instructor_for_feedback, journal_submission: submission) do |comment|
