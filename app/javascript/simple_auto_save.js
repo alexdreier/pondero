@@ -52,14 +52,20 @@ class SimpleAutoSave {
 
   scheduleAutoSave(element) {
     const formId = this.getFormId(element.form);
+    console.log('📅 scheduleAutoSave called for form:', formId);
+    console.log('   - Element form exists:', !!element.form);
+    console.log('   - Form action:', element.form?.action);
     
     // Clear existing timeout
     if (this.saveTimeouts.has(formId)) {
+      console.log('⏰ Clearing existing timeout for form:', formId);
       clearTimeout(this.saveTimeouts.get(formId));
     }
 
     // Schedule new save
+    console.log('⏲️ Scheduling auto-save in 3 seconds for form:', formId);
     const timeoutId = setTimeout(() => {
+      console.log('🔔 Auto-save timeout triggered for form:', formId);
       this.saveForm(element.form);
     }, 3000); // 3 second debounce
     

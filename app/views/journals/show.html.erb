@@ -133,7 +133,7 @@
                 
                 <!-- Submit Button -->
                 <% if @submission&.all_required_answered? %>
-                  <%= link_to journal_submission_path(@submission), method: :patch,
+                  <%= link_to journal_submission_path(@submission, submit_journal: true), method: :patch,
                       data: { 
                         confirm: "Are you sure you want to submit your journal?\n\nOnce submitted:\n• You cannot make further edits\n• Your instructor will be notified\n• You'll receive a completion confirmation\n\nClick OK to submit or Cancel to continue editing." 
                       },
