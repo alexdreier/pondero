@@ -95,18 +95,25 @@ class SimpleAutoSave {
     
     // Ensure CSRF token is present
     const csrfToken = this.getCSRFToken();
+    console.log('🔐 CSRF token check:', csrfToken ? 'Found' : 'Missing');
     if (!csrfToken) {
-      console.error('CSRF token not found - auto-save will fail');
+      console.error('❌ CSRF token not found - auto-save will fail');
       this.showSaveIndicator(form, 'error');
       return;
     }
     formData.append('authenticity_token', csrfToken);
 
+    console.log('🎯 About to show saving indicator and make request...');
     this.showSaveIndicator(form, 'saving');
     
     try {
       // Determine method from form or default to PATCH for compatibility
       const method = form.method?.toUpperCase() === 'POST' ? 'POST' : 'PATCH';
+      console.log('🌐 Making fetch request:', {
+        url: form.action || window.location.pathname,
+        method: method,
+        hasFormData: !!formData
+      });
       
       const response = await fetch(form.action || window.location.pathname, {
         method: method,
@@ -114,6 +121,12 @@ class SimpleAutoSave {
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
         }
+      });
+
+      console.log('📡 Fetch response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
       });
 
       if (response.ok) {
@@ -138,7 +151,12 @@ class SimpleAutoSave {
         throw new Error(`Save failed with status: ${response.status}`);
       }
     } catch (error) {
-      console.error('Auto-save failed:', error);
+      console.error('❌ Auto-save failed:', error);
+      console.error('❌ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       this.showSaveIndicator(form, 'error');
     }
   }
