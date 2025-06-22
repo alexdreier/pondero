@@ -5,15 +5,11 @@
     <div class="response-form">
       <trix-editor input="response-content-<%= question.id %>" 
                    class="trix-content"
-                   placeholder="Enter your response here..."
-                   data-autosave="true"
-                   data-question-id="<%= question.id %>"></trix-editor>
+                   placeholder="Enter your response here..."></trix-editor>
       <input id="response-content-<%= question.id %>" 
              type="hidden" 
              name="response[content]" 
-             value="<%= response&.content&.to_s %>"
-             data-question-id="<%= question.id %>"
-             data-autosave="true">
+             value="<%= response&.content&.body&.to_s if response&.content.respond_to?(:body) %>">
     </div>
 
   <% when 'single_response' %>
@@ -21,10 +17,8 @@
       <textarea id="response-content-single-<%= question.id %>" 
                 name="response[content]" 
                 placeholder="Enter your response..."
-                data-autosave="true"
-                data-question-id="<%= question.id %>"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 min-h-[100px]"
-                ><%= response&.content&.to_s %></textarea>
+                ><%= response&.content&.body&.to_s if response&.content.respond_to?(:body) %></textarea>
     </div>
 
   <% when 'choice' %>
@@ -35,8 +29,6 @@
                  name="response[content]" 
                  value="<%= option %>"
                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                 data-autosave="true"
-                 data-question-id="<%= question.id %>"
                  <%= 'checked' if response&.content == option %>>
           <span class="ml-3 text-gray-700"><%= option %></span>
         </label>
@@ -52,8 +44,6 @@
                  name="response[content][]" 
                  value="<%= option %>"
                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                 data-autosave="true"
-                 data-question-id="<%= question.id %>"
                  <%= 'checked' if selected_options.include?(option) %>>
           <span class="ml-2 text-gray-700"><%= option %></span>
         </label>
@@ -68,8 +58,6 @@
                  name="response[content]" 
                  value="<%= option %>"
                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mb-1"
-                 data-autosave="true"
-                 data-question-id="<%= question.id %>"
                  <%= 'checked' if response&.content == option %>>
           <span class="text-xs text-gray-600 max-w-20 leading-tight"><%= option %></span>
         </label>
@@ -96,8 +84,6 @@
              name="response[content]" 
              id="ranking-input-<%= question.id %>"
              value="<%= response&.content&.to_s %>"
-             data-autosave="true"
-             data-question-id="<%= question.id %>">
     </div>
 
   <% when 'file_upload' %>
@@ -164,223 +150,8 @@ function updateRankingInput(container) {
   });
 }
 
-// Auto-save functionality
-let autoSaveTimeout;
-
-function autoSaveResponse(element) {
-  console.log('💾 Auto-save triggered for element:', element);
-  clearTimeout(autoSaveTimeout);
-  
-  // Don't auto-save file uploads
-  if (element.type === 'file') {
-    console.log('⏭️ Skipping auto-save for file upload');
-    return;
-  }
-  
-  // Show saving indicator
-  showSavingIndicator();
-  
-  autoSaveTimeout = setTimeout(() => {
-    const questionId = element.dataset.questionId || element.closest('.question-field').dataset.questionId;
-    console.log('🔍 Question ID:', questionId);
-    
-    if (!questionId) {
-      console.error('❌ No question ID found for auto-save');
-      showErrorIndicator();
-      return;
-    }
-    
-    const formData = new FormData();
-    
-    // Get the response content based on element type
-    let content = '';
-    if (element.type === 'checkbox') {
-      const checkboxes = element.closest('.question-field').querySelectorAll('input[type="checkbox"]:checked');
-      content = Array.from(checkboxes).map(cb => cb.value).join(',');
-    } else if (element.type === 'radio') {
-      content = element.value;
-    } else if (element.type === 'hidden' && element.id.includes('ranking-input')) {
-      content = element.value;
-    } else if (element.tagName === 'TEXTAREA') {
-      content = element.value;
-    } else if (element.tagName === 'TRIX-EDITOR') {
-      // Get content from the associated hidden input
-      const hiddenInput = document.getElementById(element.getAttribute('input'));
-      content = hiddenInput ? hiddenInput.value : '';
-    } else {
-      content = element.value;
-    }
-    
-    console.log('📝 Content to save:', content);
-    
-    formData.append('response[content]', content);
-    formData.append('question_id', questionId);
-    
-    // Send AJAX request
-    console.log('📡 Sending auto-save request to /responses');
-    fetch('/responses', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      }
-    })
-    .then(response => {
-      console.log('📥 Response status:', response.status);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('✅ Auto-save response:', data);
-      if (data.status === 'success') {
-        showSavedIndicator();
-        // Update completion percentage if available
-        if (data.completion_percentage !== undefined) {
-          updateCompletionPercentage(data.completion_percentage);
-        }
-      } else {
-        showErrorIndicator();
-        console.error('❌ Save errors:', data.errors);
-      }
-    })
-    .catch(error => {
-      console.error('❌ Auto-save error:', error);
-      showErrorIndicator();
-    });
-  }, 1000); // Auto-save after 1 second of inactivity
-}
-
-function updateCompletionPercentage(percentage) {
-  const progressBars = document.querySelectorAll('[class*="completion"]');
-  progressBars.forEach(bar => {
-    if (bar.style && bar.style.width !== undefined) {
-      bar.style.width = percentage + '%';
-    }
-    if (bar.textContent && bar.textContent.includes('%')) {
-      bar.textContent = bar.textContent.replace(/\d+%/, percentage + '%');
-    }
-  });
-}
-
-function showSavingIndicator() {
-  const indicator = document.getElementById('save-indicator') || createSaveIndicator();
-  indicator.textContent = 'Saving...';
-  indicator.className = 'save-indicator saving';
-  indicator.style.display = 'block';
-}
-
-function showSavedIndicator() {
-  const indicator = document.getElementById('save-indicator') || createSaveIndicator();
-  indicator.textContent = 'Saved ✓';
-  indicator.className = 'save-indicator saved';
-  indicator.style.display = 'block';
-  
-  setTimeout(() => {
-    indicator.style.display = 'none';
-  }, 2000);
-}
-
-function showErrorIndicator() {
-  const indicator = document.getElementById('save-indicator') || createSaveIndicator();
-  indicator.textContent = 'Save failed ✗';
-  indicator.className = 'save-indicator error';
-  indicator.style.display = 'block';
-  
-  setTimeout(() => {
-    indicator.style.display = 'none';
-  }, 3000);
-}
-
-function createSaveIndicator() {
-  const indicator = document.createElement('div');
-  indicator.id = 'save-indicator';
-  indicator.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 1000;
-    display: none;
-  `;
-  document.body.appendChild(indicator);
-  
-  // Add CSS for different states
-  const style = document.createElement('style');
-  style.textContent = `
-    .save-indicator.saving {
-      background-color: #FEF3C7;
-      color: #92400E;
-      border: 1px solid #F59E0B;
-    }
-    .save-indicator.saved {
-      background-color: #D1FAE5;
-      color: #065F46;
-      border: 1px solid #10B981;
-    }
-    .save-indicator.error {
-      background-color: #FEE2E2;
-      color: #991B1B;
-      border: 1px solid #EF4444;
-    }
-  `;
-  document.head.appendChild(style);
-  
-  return indicator;
-}
-
+// Simple ranking functionality (no auto-save)
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Journal response system initializing...');
-  
-  const autosaveFields = document.querySelectorAll('[data-autosave="true"]');
-  console.log(`📝 Found ${autosaveFields.length} auto-save fields`);
-  
-  if (autosaveFields.length === 0) {
-    console.error('❌ No auto-save fields found! Check if question form fields are rendering correctly.');
-    return;
-  }
-  
-  // Check if autoSaveResponse function exists
-  if (typeof autoSaveResponse !== 'function') {
-    console.error('❌ autoSaveResponse function not found!');
-    return;
-  }
-  
-  // Check CSRF token
-  const csrfToken = document.querySelector('[name="csrf-token"]');
-  if (!csrfToken) {
-    console.error('❌ CSRF token not found!');
-    return;
-  }
-  console.log('✅ CSRF token found');
-  
-  autosaveFields.forEach((field, index) => {
-    console.log(`🔧 Setting up field ${index + 1}: ${field.tagName} (ID: ${field.id})`);
-    
-    if (field.tagName === 'TRIX-EDITOR') {
-      // Trix editor needs special handling
-      field.addEventListener('trix-change', function() {
-        console.log('📝 Trix editor changed, triggering auto-save');
-        autoSaveResponse(this);
-      });
-    } else {
-      field.addEventListener('input', function() {
-        console.log('⌨️ Input detected, triggering auto-save');
-        autoSaveResponse(this);
-      });
-      
-      field.addEventListener('change', function() {
-        console.log('🔄 Change detected, triggering auto-save');
-        autoSaveResponse(this);
-      });
-    }
-  });
-  
-  console.log('✅ Journal response system initialized successfully');
 });
 </script>
