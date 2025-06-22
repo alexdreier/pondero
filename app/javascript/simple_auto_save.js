@@ -135,15 +135,8 @@ class SimpleAutoSave {
         
         // Handle completion updates for journal forms
         const responseData = await response.json().catch(() => ({}));
-        console.log('📊 Response data from server:', responseData);
-        
         if (responseData.all_required_answered !== undefined) {
-          console.log('🔄 Updating submit button, all required answered:', responseData.all_required_answered);
-          console.log('📊 Updating progress to:', responseData.completion_percentage + '%');
           this.updateSubmitButton(responseData.all_required_answered);
-          this.updateProgressDisplay(responseData.completion_percentage);
-        } else {
-          console.log('⚠️ No completion data received from server');
         }
         
         // Update form for subsequent saves if this was a creation (POST -> PATCH)
@@ -224,59 +217,25 @@ class SimpleAutoSave {
   }
 
   updateSubmitButton(allRequiredAnswered) {
-    console.log('🔘 updateSubmitButton called with:', allRequiredAnswered);
     const submitButton = document.querySelector('a[href*="journal_submission"], button[data-submit="journal"]');
     const disabledButton = document.querySelector('button[disabled][class*="Complete Required Questions"]');
-    
-    console.log('🔍 Submit button found:', !!submitButton);
-    console.log('🔍 Disabled button found:', !!disabledButton);
     
     if (allRequiredAnswered) {
       // Enable submit button
       if (disabledButton) {
         disabledButton.style.display = 'none';
-        console.log('✅ Hid disabled button');
       }
       if (submitButton) {
         submitButton.style.display = 'inline-flex';
-        console.log('✅ Showed submit button');
       }
     } else {
       // Disable submit button  
       if (submitButton) {
         submitButton.style.display = 'none';
-        console.log('❌ Hid submit button');
       }
       if (disabledButton) {
         disabledButton.style.display = 'inline-flex';
-        console.log('❌ Showed disabled button');
       }
-    }
-  }
-
-  updateProgressDisplay(completionPercentage) {
-    console.log('📊 updateProgressDisplay called with:', completionPercentage);
-    // Find the progress display element
-    const progressElement = document.querySelector('[class*="Progress:"], [class*="progress"], .completion-percentage');
-    
-    if (!progressElement) {
-      // Try to find by text content
-      const progressElements = document.querySelectorAll('*');
-      for (const element of progressElements) {
-        if (element.textContent && element.textContent.includes('Progress:')) {
-          console.log('📊 Found progress element by text content');
-          element.textContent = element.textContent.replace(/Progress: \d+%/, `Progress: ${completionPercentage}%`);
-          return;
-        }
-      }
-      console.log('⚠️ Progress display element not found');
-      return;
-    }
-    
-    // Update the progress percentage
-    if (progressElement.textContent) {
-      progressElement.textContent = progressElement.textContent.replace(/\d+%/, `${completionPercentage}%`);
-      console.log('✅ Updated progress display to:', completionPercentage + '%');
     }
   }
 
