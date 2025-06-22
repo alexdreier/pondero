@@ -65,16 +65,30 @@ class SimpleAutoSave {
   }
 
   async saveForm(form) {
-    if (!form || !this.isOnline) return;
+    console.log('💾 saveForm called with form:', form);
+    if (!form || !this.isOnline) {
+      console.log('❌ saveForm aborted - form:', !!form, 'online:', this.isOnline);
+      return;
+    }
 
     const formId = this.getFormId(form);
     const formData = new FormData(form);
     const currentContent = this.serializeFormData(formData);
+    
+    console.log('🔍 saveForm details:');
+    console.log('   - Form ID:', formId);
+    console.log('   - Form action:', form.action);
+    console.log('   - Form method:', form.method);
+    console.log('   - Current content:', currentContent);
+    console.log('   - Last saved content:', this.lastSavedContent.get(formId));
 
     // Check if content has changed
     if (this.lastSavedContent.get(formId) === currentContent) {
+      console.log('⚡ No changes detected, skipping save');
       return;
     }
+
+    console.log('🚀 Content changed, proceeding with save...');
 
     // Add auto-save indicator
     formData.append('auto_save', 'true');
