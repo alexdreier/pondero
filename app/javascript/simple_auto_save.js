@@ -13,8 +13,15 @@ class SimpleAutoSave {
   initializeEventListeners() {
     // Monitor form inputs for changes
     document.addEventListener('input', (event) => {
+      console.log('📝 Input event detected on:', event.target);
       if (this.shouldAutoSave(event.target)) {
+        console.log('✅ Element should auto-save, scheduling...');
         this.scheduleAutoSave(event.target);
+      } else {
+        console.log('❌ Element should NOT auto-save');
+        console.log('   - Element type:', event.target.tagName, event.target.type);
+        console.log('   - Has form:', !!event.target.form);
+        console.log('   - Data attributes:', event.target.dataset);
       }
     });
 
