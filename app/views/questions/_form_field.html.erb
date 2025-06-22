@@ -1,6 +1,6 @@
 <!-- Question form field for learners -->
 <%= form_with model: [question, response || Response.new], 
-              url: response&.persisted? ? response_path(response) : question_responses_path(question),
+              url: response&.persisted? ? response_path(response) : journal_question_responses_path(question.journal, question),
               method: response&.persisted? ? :patch : :post,
               local: false,
               data: { auto_save: true },
