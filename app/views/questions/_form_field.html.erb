@@ -47,12 +47,10 @@
       <% selected_options = response&.content&.to_s&.split(',') || [] %>
       <% question.options_array.each do |option| %>
         <label class="flex items-center">
-          <%= form.check_box :content, 
-                           { multiple: true, 
-                             class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
-                             data: { auto_save: true },
-                             checked: selected_options.include?(option) },
-                           option, '' %>
+          <%= check_box_tag "response[content][]", option,
+                           selected_options.include?(option),
+                           class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
+                           data: { auto_save: true } %>
           <span class="ml-2 text-gray-700"><%= option %></span>
         </label>
       <% end %>

@@ -87,6 +87,13 @@ class ResponsesController < ApplicationController
       permitted_params[:content] = permitted_params[:content].reject(&:blank?).join(',')
     end
     
+    # Handle file uploads - store filename as content
+    if permitted_params[:content].respond_to?(:original_filename)
+      # For file uploads, we'll store the filename as content
+      # In a real application, you'd want to process and store the file
+      permitted_params[:content] = permitted_params[:content].original_filename
+    end
+    
     permitted_params
   end
 end
