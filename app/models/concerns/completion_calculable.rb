@@ -9,7 +9,7 @@ module CompletionCalculable
     
     # If there are no required questions, calculate based on all questions
     if required_questions == 0
-      all_responses = user.responses.joins(:question).where(questions: { journal: journal })
+      all_responses = completion_all_responses
       answered_questions = all_responses
                              .select { |response| response.content.present? && response.content.to_s.strip.present? }
                              .count
@@ -31,8 +31,14 @@ module CompletionCalculable
   private
 
   # This method should be implemented by the including class
-  # to return the appropriate responses collection
+  # to return the appropriate responses collection for required questions
   def completion_responses
     raise NotImplementedError, "#{self.class} must implement #completion_responses"
+  end
+
+  # This method should be implemented by the including class
+  # to return all responses for the journal
+  def completion_all_responses
+    raise NotImplementedError, "#{self.class} must implement #completion_all_responses"
   end
 end

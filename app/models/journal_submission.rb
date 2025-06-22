@@ -30,4 +30,8 @@ class JournalSubmission < ApplicationRecord
   def completion_responses
     user.responses.joins(:question).where(questions: { journal: journal, required: true })
   end
+
+  def completion_all_responses
+    user.responses.joins(:question).where(questions: { journal: journal })
+  end
 end

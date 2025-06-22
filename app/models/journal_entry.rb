@@ -33,6 +33,10 @@ class JournalEntry < ApplicationRecord
   def completion_responses
     responses.joins(:question).where(questions: { required: true })
   end
+
+  def completion_all_responses
+    responses.joins(:question)
+  end
   
   def display_title
     title.present? ? title : "Entry for #{entry_date&.strftime('%B %d, %Y') || 'Unknown Date'}"
