@@ -147,7 +147,11 @@ function updateRankingInput(container) {
   const items = container.querySelectorAll('.ranking-item');
   const order = Array.from(items).map(item => item.dataset.option);
   
-  document.getElementById(`ranking-input-${questionId}`).value = order.join(',');
+  const input = document.getElementById(`ranking-input-${questionId}`);
+  input.value = order.join(',');
+  
+  // Trigger auto-save by dispatching input event
+  input.dispatchEvent(new Event('input', { bubbles: true }));
   
   // Update position numbers
   items.forEach((item, index) => {
@@ -155,7 +159,19 @@ function updateRankingInput(container) {
   });
 }
 
-// Simple ranking functionality (no auto-save)
+// Ensure Trix editors trigger auto-save
+document.addEventListener('trix-change', function(event) {
+  // Find the associated hidden input and trigger input event for auto-save
+  const trixEditor = event.target;
+  const inputId = trixEditor.getAttribute('input');
+  const hiddenInput = document.getElementById(inputId);
+  
+  if (hiddenInput && hiddenInput.hasAttribute('data-auto-save')) {
+    hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+
+// Initialize ranking and Trix functionality
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 Journal response system initializing...');
 });

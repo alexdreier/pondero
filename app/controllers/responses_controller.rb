@@ -17,7 +17,8 @@ class ResponsesController < ApplicationController
         status: 'success', 
         message: 'Response saved',
         completion_percentage: completion_percentage,
-        all_required_answered: submission.all_required_answered?
+        all_required_answered: submission.all_required_answered?,
+        response_id: @response.id
       }
     else
       render json: { status: 'error', errors: @response.errors.full_messages }
@@ -47,7 +48,8 @@ class ResponsesController < ApplicationController
           status: 'success', 
           message: 'Response updated',
           completion_percentage: completion_percentage,
-          all_required_answered: submission.all_required_answered?
+          all_required_answered: submission.all_required_answered?,
+          response_id: @response.id
         }
       else
         render json: { status: 'error', errors: @response.errors.full_messages }
@@ -65,7 +67,8 @@ class ResponsesController < ApplicationController
           status: 'success', 
           message: 'Response saved',
           completion_percentage: completion_percentage,
-          all_required_answered: submission.all_required_answered?
+          all_required_answered: submission.all_required_answered?,
+          response_id: @response.id
         }
       else
         render json: { status: 'error', errors: @response.errors.full_messages }

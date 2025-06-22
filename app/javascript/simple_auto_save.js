@@ -84,8 +84,11 @@ class SimpleAutoSave {
     this.showSaveIndicator(form, 'saving');
     
     try {
+      // Determine method from form or default to PATCH for compatibility
+      const method = form.method?.toUpperCase() === 'POST' ? 'POST' : 'PATCH';
+      
       const response = await fetch(form.action || window.location.pathname, {
-        method: 'PATCH',
+        method: method,
         body: formData,
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
@@ -100,6 +103,11 @@ class SimpleAutoSave {
         const responseData = await response.json().catch(() => ({}));
         if (responseData.all_required_answered !== undefined) {
           this.updateSubmitButton(responseData.all_required_answered);
+        }
+        
+        // Update form for subsequent saves if this was a creation (POST -> PATCH)
+        if (method === 'POST' && responseData.response_id) {
+          this.updateFormForExistingResponse(form, responseData.response_id);
         }
       } else if (response.status === 422) {
         // CSRF token validation failed
@@ -190,6 +198,23 @@ class SimpleAutoSave {
         disabledButton.style.display = 'inline-flex';
       }
     }
+  }
+
+  updateFormForExistingResponse(form, responseId) {
+    // Update form to use PATCH method and response-specific URL for subsequent saves
+    const questionId = form.id.replace('response-form-', '');
+    form.action = `/responses/${responseId}`;
+    form.method = 'patch';
+    
+    // Add hidden method field for Rails
+    let methodInput = form.querySelector('input[name="_method"]');
+    if (!methodInput) {
+      methodInput = document.createElement('input');
+      methodInput.type = 'hidden';
+      methodInput.name = '_method';
+      form.appendChild(methodInput);
+    }
+    methodInput.value = 'patch';
   }
 
   monitorConnectionStatus() {
