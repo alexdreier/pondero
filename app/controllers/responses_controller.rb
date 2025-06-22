@@ -8,11 +8,16 @@ class ResponsesController < ApplicationController
     @response.journal_entry = journal_entry if journal_entry
     
     if @response.save
-      completion_percentage = journal_entry&.completion_percentage || 0
+      # Get or create journal submission to calculate completion
+      journal = @question.journal
+      submission = journal.journal_submissions.find_or_create_by(user: current_user)
+      completion_percentage = submission.completion_percentage
+      
       render json: { 
         status: 'success', 
         message: 'Response saved',
-        completion_percentage: completion_percentage
+        completion_percentage: completion_percentage,
+        all_required_answered: submission.all_required_answered?
       }
     else
       render json: { status: 'error', errors: @response.errors.full_messages }
@@ -33,11 +38,16 @@ class ResponsesController < ApplicationController
     
     if @response.persisted?
       if @response.update(response_params)
-        completion_percentage = journal_entry&.completion_percentage || 0
+        # Get journal submission to calculate completion
+        journal = @question.journal
+        submission = journal.journal_submissions.find_or_create_by(user: current_user)
+        completion_percentage = submission.completion_percentage
+        
         render json: { 
           status: 'success', 
           message: 'Response updated',
-          completion_percentage: completion_percentage
+          completion_percentage: completion_percentage,
+          all_required_answered: submission.all_required_answered?
         }
       else
         render json: { status: 'error', errors: @response.errors.full_messages }
@@ -46,11 +56,16 @@ class ResponsesController < ApplicationController
       @response.assign_attributes(response_params)
       @response.journal_entry = journal_entry if journal_entry
       if @response.save
-        completion_percentage = journal_entry&.completion_percentage || 0
+        # Get journal submission to calculate completion
+        journal = @question.journal
+        submission = journal.journal_submissions.find_or_create_by(user: current_user)
+        completion_percentage = submission.completion_percentage
+        
         render json: { 
           status: 'success', 
           message: 'Response saved',
-          completion_percentage: completion_percentage
+          completion_percentage: completion_percentage,
+          all_required_answered: submission.all_required_answered?
         }
       else
         render json: { status: 'error', errors: @response.errors.full_messages }
@@ -65,6 +80,13 @@ class ResponsesController < ApplicationController
   end
 
   def response_params
-    params.require(:response).permit(:content, :journal_entry_id)
+    permitted_params = params.require(:response).permit(:content, :journal_entry_id, content: [])
+    
+    # Handle multiple choice checkboxes - join array into comma-separated string
+    if permitted_params[:content].is_a?(Array)
+      permitted_params[:content] = permitted_params[:content].reject(&:blank?).join(',')
+    end
+    
+    permitted_params
   end
 end

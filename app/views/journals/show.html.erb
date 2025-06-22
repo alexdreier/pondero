@@ -64,7 +64,7 @@
 
         <div class="p-8">
           <% if @journal.questions.any? %>
-            <%= form_with url: responses_path, local: false, id: "journal-responses-form", class: "space-y-12" do |form| %>
+            <div class="space-y-12">
               <% @journal.questions.ordered.each_with_index do |question, index| %>
                 <div class="border-b border-gray-100 pb-12 last:border-b-0 last:pb-0">
                   <div class="mb-6">
@@ -98,7 +98,7 @@
                   </div>
                 </div>
               <% end %>
-            <% end %>
+            </div>
 
             <!-- Action Bar -->
             <div class="mt-12 pt-8 border-t border-gray-200">
@@ -125,12 +125,11 @@
               
               <!-- Action Buttons -->
               <div class="flex flex-col sm:flex-row gap-4">
-                <!-- Save Progress Button -->
-                <button type="submit" form="journal-responses-form"
-                        class="inline-flex items-center justify-center px-8 py-4 bg-gray-600 text-white text-lg font-semibold rounded-lg hover:bg-gray-700 shadow-sm transition-all duration-200">
-                  <i class="fas fa-save mr-3"></i>
-                  Save & Continue Later
-                </button>
+                <!-- Auto-save Message -->
+                <div class="inline-flex items-center px-6 py-3 bg-gray-100 text-gray-700 text-lg rounded-lg border border-gray-200">
+                  <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                  Your responses save automatically as you type
+                </div>
                 
                 <!-- Submit Button -->
                 <% if @submission&.all_required_answered? %>

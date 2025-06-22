@@ -95,6 +95,12 @@ class SimpleAutoSave {
       if (response.ok) {
         this.lastSavedContent.set(formId, currentContent);
         this.showSaveIndicator(form, 'saved');
+        
+        // Handle completion updates for journal forms
+        const responseData = await response.json().catch(() => ({}));
+        if (responseData.all_required_answered !== undefined) {
+          this.updateSubmitButton(responseData.all_required_answered);
+        }
       } else if (response.status === 422) {
         // CSRF token validation failed
         this.showSaveIndicator(form, 'error');
@@ -161,6 +167,29 @@ class SimpleAutoSave {
 
   getCSRFToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+  }
+
+  updateSubmitButton(allRequiredAnswered) {
+    const submitButton = document.querySelector('a[href*="journal_submission"], button[data-submit="journal"]');
+    const disabledButton = document.querySelector('button[disabled][class*="Complete Required Questions"]');
+    
+    if (allRequiredAnswered) {
+      // Enable submit button
+      if (disabledButton) {
+        disabledButton.style.display = 'none';
+      }
+      if (submitButton) {
+        submitButton.style.display = 'inline-flex';
+      }
+    } else {
+      // Disable submit button  
+      if (submitButton) {
+        submitButton.style.display = 'none';
+      }
+      if (disabledButton) {
+        disabledButton.style.display = 'inline-flex';
+      }
+    }
   }
 
   monitorConnectionStatus() {

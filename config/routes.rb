@@ -25,6 +25,7 @@ Rails.application.routes.draw do
       collection do
         patch :reorder
       end
+      resources :responses, only: [:create, :update]
     end
     resources :journal_entries do
       member do

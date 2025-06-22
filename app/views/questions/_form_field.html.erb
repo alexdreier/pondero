@@ -1,35 +1,42 @@
 <!-- Question form field for learners -->
-<div class="question-field" data-question-id="<%= question.id %>">
+<%= form_with model: [question, response || Response.new], 
+              url: response&.persisted? ? response_path(response) : question_responses_path(question),
+              method: response&.persisted? ? :patch : :post,
+              local: false,
+              data: { auto_save: true },
+              class: "question-field response-form",
+              id: "response-form-#{question.id}" do |form| %>
+<div data-question-id="<%= question.id %>">
   <% case question.question_type %>
   <% when 'free_text' %>
     <div class="response-form">
       <trix-editor input="response-content-<%= question.id %>" 
                    class="trix-content"
                    placeholder="Enter your response here..."></trix-editor>
-      <input id="response-content-<%= question.id %>" 
-             type="hidden" 
-             name="response[content]" 
-             value="<%= response&.content&.to_s&.strip if response&.content.present? %>">
+      <%= form.hidden_field :content, 
+                          id: "response-content-#{question.id}",
+                          value: response&.content&.to_s&.strip,
+                          data: { auto_save: true } %>
     </div>
 
   <% when 'single_response' %>
     <div class="response-form">
-      <textarea id="response-content-single-<%= question.id %>" 
-                name="response[content]" 
-                placeholder="Enter your response..."
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 min-h-[100px]"
-                ><%= response&.content&.to_s&.strip if response&.content.present? %></textarea>
+      <%= form.text_area :content,
+                       id: "response-content-single-#{question.id}",
+                       placeholder: "Enter your response...",
+                       class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 min-h-[100px]",
+                       data: { auto_save: true },
+                       value: response&.content&.to_s&.strip %>
     </div>
 
   <% when 'choice' %>
     <div class="space-y-2">
       <% question.options_array.each do |option| %>
         <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200">
-          <input type="radio" 
-                 name="response[content]" 
-                 value="<%= option %>"
-                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                 <%= 'checked' if response&.content == option %>>
+          <%= form.radio_button :content, option,
+                               class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300",
+                               data: { auto_save: true },
+                               checked: response&.content == option %>
           <span class="ml-3 text-gray-700"><%= option %></span>
         </label>
       <% end %>
@@ -40,11 +47,12 @@
       <% selected_options = response&.content&.to_s&.split(',') || [] %>
       <% question.options_array.each do |option| %>
         <label class="flex items-center">
-          <input type="checkbox" 
-                 name="response[content][]" 
-                 value="<%= option %>"
-                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                 <%= 'checked' if selected_options.include?(option) %>>
+          <%= form.check_box :content, 
+                           { multiple: true, 
+                             class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded",
+                             data: { auto_save: true },
+                             checked: selected_options.include?(option) },
+                           option, '' %>
           <span class="ml-2 text-gray-700"><%= option %></span>
         </label>
       <% end %>
@@ -54,11 +62,10 @@
     <div class="flex justify-between items-center">
       <% question.options_array.each_with_index do |option, index| %>
         <label class="flex flex-col items-center text-center">
-          <input type="radio" 
-                 name="response[content]" 
-                 value="<%= option %>"
-                 class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mb-1"
-                 <%= 'checked' if response&.content == option %>>
+          <%= form.radio_button :content, option,
+                               class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 mb-1",
+                               data: { auto_save: true },
+                               checked: response&.content == option %>
           <span class="text-xs text-gray-600 max-w-20 leading-tight"><%= option %></span>
         </label>
       <% end %>
@@ -80,20 +87,19 @@
           </div>
         <% end %>
       </div>
-      <input type="hidden" 
-             name="response[content]" 
-             id="ranking-input-<%= question.id %>"
-             value="<%= response&.content&.to_s %>"
+      <%= form.hidden_field :content,
+                          id: "ranking-input-#{question.id}",
+                          value: response&.content&.to_s,
+                          data: { auto_save: true } %>
     </div>
 
   <% when 'file_upload' %>
     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-      <input type="file" 
-             name="response[file]" 
-             class="hidden" 
-             id="file-<%= question.id %>"
-             data-question-id="<%= question.id %>"
-             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+      <%= form.file_field :content,
+                        class: "hidden",
+                        id: "file-#{question.id}",
+                        data: { question_id: question.id, auto_save: true },
+                        accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" %>
       <label for="file-<%= question.id %>" class="cursor-pointer">
         <div class="text-gray-400 mb-2">
           <svg class="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -116,6 +122,7 @@
 
   <% end %>
 </div>
+<% end %>
 
 <script>
 // Ranking functionality
