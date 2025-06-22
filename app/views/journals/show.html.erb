@@ -1,130 +1,161 @@
 <% content_for :title, @journal.title %>
 
-<div class="bg-gray-50 min-h-screen">
-  <!-- Simple Header -->
-  <div class="bg-white border-b">
-    <div class="max-w-4xl mx-auto px-6 py-6">
-      <%= link_to journals_path, class: "text-blue-600 hover:text-blue-800" do %>
-        ← Back to Journals
-      <% end %>
-      
-      <h1 class="text-2xl font-bold text-gray-900 mt-4">
-        <%= @journal.title %>
-      </h1>
-      
-      <% if @journal.description.present? %>
-        <p class="text-gray-600 mt-2">
-          <%= @journal.description %>
-        </p>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Simple Content -->
-  <div class="max-w-4xl mx-auto px-6 py-6">
-    <% if current_user.learner? && @journal.questions.any? %>
-      <!-- Progress -->
-      <div class="bg-white p-4 rounded border mb-6">
-        <div class="flex justify-between items-center">
-          <span class="font-medium">Progress:</span>
-          <span><%= @submission&.completion_percentage || 0 %>%</span>
-        </div>
-        <div class="bg-gray-200 rounded h-2 mt-2">
-          <div class="bg-blue-600 h-2 rounded" style="width: <%= @submission&.completion_percentage || 0 %>%"></div>
-        </div>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header Section -->
+  <header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+      <!-- Navigation Breadcrumb -->
+      <div class="mb-6">
+        <%= link_to journals_path, class: "inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200" do %>
+          <i class="fas fa-arrow-left mr-3"></i>
+          <span class="text-lg font-medium">Back to Journals</span>
+        <% end %>
       </div>
 
-      <!-- Questions - SUPER SIMPLE -->
-      <%= form_with url: responses_path, local: false do |form| %>
-        <% @journal.questions.ordered.each_with_index do |question, index| %>
-          <div class="bg-white p-6 rounded border mb-4">
-            <div class="mb-4">
-              <h3 class="text-lg font-semibold flex items-center">
-                <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">
-                  <%= index + 1 %>
-                </span>
-                <%= question.content %>
-                <% if question.required? %>
-                  <span class="text-red-600 ml-2">*</span>
-                <% end %>
-              </h3>
-              
-              <% if question.description.present? %>
-                <div class="ml-9 text-gray-600 text-sm">
-                  <%= question.description %>
-                </div>
-              <% end %>
-            </div>
-            
-            <div class="ml-9">
-              <% response = @responses&.find { |r| r.question_id == question.id } %>
-              <% case question.question_type %>
-              <% when 'free_text' %>
-                <textarea name="response[content]" placeholder="Enter your response..." 
-                          class="w-full p-3 border rounded min-h-[100px]"><%= response&.content&.to_s&.strip %></textarea>
-              
-              <% when 'single_response' %>
-                <textarea name="response[content]" placeholder="Enter your response..." 
-                          class="w-full p-3 border rounded min-h-[100px]"><%= response&.content&.to_s&.strip %></textarea>
-              
-              <% when 'choice' %>
-                <div class="space-y-2">
-                  <% question.options_array.each do |option| %>
-                    <label class="flex items-center">
-                      <input type="radio" name="response[content]" value="<%= option %>" 
-                             class="mr-2" <%= 'checked' if response&.content&.to_s == option %>>
-                      <%= option %>
-                    </label>
-                  <% end %>
-                </div>
-              
-              <% when 'multiple_response' %>
-                <div class="space-y-2">
-                  <% selected = (response&.content&.to_s&.split(',') || []) %>
-                  <% question.options_array.each do |option| %>
-                    <label class="flex items-center">
-                      <input type="checkbox" name="response[content][]" value="<%= option %>" 
-                             class="mr-2" <%= 'checked' if selected.include?(option) %>>
-                      <%= option %>
-                    </label>
-                  <% end %>
-                </div>
-              
-              <% when 'likert_scale' %>
-                <div class="flex justify-between">
-                  <% question.options_array.each do |option| %>
-                    <label class="flex flex-col items-center">
-                      <input type="radio" name="response[content]" value="<%= option %>" 
-                             class="mb-1" <%= 'checked' if response&.content&.to_s == option %>>
-                      <span class="text-xs text-center"><%= option %></span>
-                    </label>
-                  <% end %>
-                </div>
-              
-              <% else %>
-                <p class="text-gray-500">Question type: <%= question.question_type %></p>
-              <% end %>
+      <!-- Journal Title and Description -->
+      <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+          <%= @journal.title %>
+        </h1>
+        <% if @journal.description.present? %>
+          <p class="text-lg text-gray-600 leading-relaxed max-w-4xl">
+            <%= @journal.description %>
+          </p>
+        <% end %>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-4">
+        <% if current_user.learner? %>
+          <% if @journal.questions.any? %>
+            <a href="#journal-questions"
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 shadow-sm transition-all duration-200">
+              <i class="fas fa-play mr-3"></i>
+              Start Answering
+            </a>
+          <% else %>
+            <span class="inline-flex items-center px-6 py-3 bg-gray-400 text-white text-lg font-semibold rounded-lg">
+              <i class="fas fa-clock mr-3"></i>
+              Questions Coming Soon
+            </span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    <% if current_user.learner? %>
+      <!-- Learner View: Show Journal Questions -->
+      <div id="journal-questions" class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden" tabindex="-1">
+        <div class="px-8 py-6 border-b border-gray-200 bg-gray-50">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h2 class="text-2xl font-bold text-gray-900">
+              <i class="fas fa-question-circle text-blue-600 mr-3"></i>
+              Journal Questions
+            </h2>
+            <div class="flex items-center bg-white px-4 py-2 rounded-lg border border-gray-200">
+              <i class="fas fa-chart-line text-green-600 mr-2"></i>
+              <span class="text-lg font-semibold text-gray-900">Progress: <%= @submission&.completion_percentage || 0 %>%</span>
             </div>
           </div>
-        <% end %>
-        
-        <div class="text-center mt-6">
-          <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-            Save Responses
-          </button>
         </div>
-      <% end %>
-    
-    <% elsif current_user.learner? %>
-      <div class="text-center py-12">
-        <p class="text-gray-600">No questions available yet.</p>
+
+        <div class="p-8">
+          <% if @journal.questions.any? %>
+            <%= form_with url: responses_path, local: false, id: "journal-responses-form", class: "space-y-12" do |form| %>
+              <% @journal.questions.ordered.each_with_index do |question, index| %>
+                <div class="border-b border-gray-100 pb-12 last:border-b-0 last:pb-0">
+                  <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 leading-relaxed">
+                      <span class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full text-lg font-bold mr-4">
+                        <%= index + 1 %>
+                      </span>
+                      <%= question.content %>
+                      <% if question.required? %>
+                        <span class="text-red-500 ml-2" title="Required">
+                          <i class="fas fa-asterisk text-sm"></i>
+                        </span>
+                      <% end %>
+                    </h3>
+                    
+                    <% if question.description.present? %>
+                      <div class="ml-12 text-base text-gray-600 leading-relaxed">
+                        <%= question.description %>
+                      </div>
+                    <% end %>
+
+                    <div class="ml-12 mt-2">
+                      <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                        <i class="fas fa-tag mr-2"></i>
+                        Type: <%= question.question_type.humanize %>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="ml-12">
+                    <% response = @responses&.find { |r| r.question_id == question.id } %>
+                    <%= render partial: 'questions/form_field', locals: { question: question, response: response } %>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+
+            <!-- Action Bar -->
+            <div class="mt-12 pt-8 border-t border-gray-200">
+              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="flex items-center">
+                  <% if @submission&.all_required_answered? %>
+                    <div class="flex items-center text-green-600">
+                      <i class="fas fa-check-circle text-xl mr-3"></i>
+                      <span class="text-lg font-semibold">All required questions answered</span>
+                    </div>
+                  <% else %>
+                    <div class="flex items-center text-yellow-600">
+                      <i class="fas fa-exclamation-triangle text-xl mr-3"></i>
+                      <span class="text-lg font-semibold">Some required questions need answers</span>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <div class="flex flex-wrap gap-4">
+                  <button type="submit" form="journal-responses-form"
+                          class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 shadow-sm transition-all duration-200">
+                    <i class="fas fa-save mr-3"></i>
+                    Save Responses
+                  </button>
+                  
+                  <% if @submission&.all_required_answered? %>
+                    <%= link_to journal_submission_path(@submission), method: :patch,
+                        data: { confirm: "Are you sure you want to submit? You won't be able to edit after submission." },
+                        class: "inline-flex items-center px-6 py-3 bg-green-600 text-white text-lg font-semibold rounded-lg hover:bg-green-700 shadow-sm transition-all duration-200" do %>
+                      <i class="fas fa-paper-plane mr-3"></i>
+                      Submit Journal
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="text-center py-16">
+              <i class="fas fa-question-circle text-6xl text-gray-300 mb-6"></i>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">No Questions Added Yet</h3>
+              <p class="text-lg text-gray-500">This journal is being prepared. Please check back soon.</p>
+            </div>
+          <% end %>
+        </div>
       </div>
-    
+
     <% else %>
-      <div class="bg-white p-6 rounded border">
-        <h2 class="text-xl font-bold mb-4">Journal Management</h2>
-        <p class="text-gray-600">Instructor/Admin view</p>
+      <!-- Instructor/Admin View -->
+      <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">
+          <i class="fas fa-cogs mr-3"></i>
+          Journal Management
+        </h2>
+        <p class="text-gray-600">This area contains journal management tools for instructors and administrators.</p>
       </div>
     <% end %>
-  </div>
+  </main>
 </div>
