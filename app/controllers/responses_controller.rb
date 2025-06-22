@@ -76,6 +76,18 @@ class ResponsesController < ApplicationController
     end
   end
 
+  # Mark all feedback for this response as read (for students)
+  def mark_feedback_as_read
+    @response = Response.find(params[:id])
+    
+    if current_user == @response.user
+      @response.mark_all_feedback_as_read!(current_user)
+      render json: { status: 'success', message: 'Feedback marked as read' }
+    else
+      render json: { status: 'error', message: 'Unauthorized' }, status: :forbidden
+    end
+  end
+
   private
 
   def set_question

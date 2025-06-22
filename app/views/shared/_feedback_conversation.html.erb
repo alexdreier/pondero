@@ -200,7 +200,7 @@ function updateFeedbackCount(responseId, count) {
 }
 
 function markFeedbackAsRead(responseId) {
-  fetch(`/responses/${responseId}/response_feedbacks/mark_as_read`, {
+  fetch(`/responses/${responseId}/mark_feedback_as_read`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

@@ -51,10 +51,11 @@ Rails.application.routes.draw do
   end
   
   resources :responses, only: [:create, :update] do
-    resources :response_feedbacks, only: [:create, :update, :destroy] do
-      member do
-        patch :mark_as_read
-      end
+    resources :response_feedbacks, only: [:create, :update, :destroy]
+    
+    # Mark all feedback as read for this response
+    member do
+      patch :mark_feedback_as_read
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
