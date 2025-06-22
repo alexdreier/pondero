@@ -90,6 +90,11 @@
                   <div class="ml-12">
                     <% response = @responses&.find { |r| r.question_id == question.id } %>
                     <%= render partial: 'questions/form_field', locals: { question: question, response: response } %>
+                    
+                    <!-- Feedback conversation for submitted journals -->
+                    <% if response && @submission&.submitted? %>
+                      <%= render partial: 'shared/feedback_conversation', locals: { response: response } %>
+                    <% end %>
                   </div>
                 </div>
               <% end %>

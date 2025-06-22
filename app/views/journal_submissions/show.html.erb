@@ -96,6 +96,11 @@
                       <p class="text-gray-500 italic">No response provided</p>
                     <% end %>
                   </div>
+                  
+                  <!-- Feedback conversation for instructors -->
+                  <% if response.content.present? %>
+                    <%= render partial: 'shared/feedback_conversation', locals: { response: response } %>
+                  <% end %>
                 </div>
               <% end %>
             </div>

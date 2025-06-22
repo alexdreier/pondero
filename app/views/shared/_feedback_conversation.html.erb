@@ -1,0 +1,252 @@
+<!-- Feedback Conversation Component -->
+<div class="feedback-conversation mt-6" data-response-id="<%= response.id %>">
+  <% if response.supports_feedback? && (response.has_feedback? || (current_user.instructor? || current_user.administrator?)) %>
+    
+    <!-- Feedback Header -->
+    <div class="border-t border-gray-200 pt-6">
+      <div class="flex items-center justify-between mb-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <i class="fas fa-comments text-blue-600 mr-2"></i>
+          Discussion
+          <% if response.has_feedback? %>
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <%= pluralize(response.feedback_count, 'message') %>
+            </span>
+          <% end %>
+          <% if current_user == response.user && response.has_unread_feedback? %>
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <%= pluralize(response.unread_feedback_count, 'new') %>
+            </span>
+          <% end %>
+        </h4>
+        
+        <% if current_user == response.user && response.has_unread_feedback? %>
+          <button type="button" 
+                  onclick="markFeedbackAsRead(<%= response.id %>)"
+                  class="text-sm text-blue-600 hover:text-blue-800">
+            Mark all as read
+          </button>
+        <% end %>
+      </div>
+
+      <!-- Conversation Thread -->
+      <div class="feedback-thread space-y-4" id="feedback-thread-<%= response.id %>">
+        <% response.feedback_conversation.each do |feedback| %>
+          <%= render 'shared/feedback_message', feedback: feedback, response: response %>
+        <% end %>
+      </div>
+
+      <!-- Add Feedback Form -->
+      <% if response.can_receive_feedback?(current_user) %>
+        <div class="mt-6 pt-4 border-t border-gray-100">
+          <form class="feedback-form" data-response-id="<%= response.id %>">
+            <div class="mb-4">
+              <label for="feedback-content-<%= response.id %>" class="block text-sm font-medium text-gray-700 mb-2">
+                <% if current_user.instructor? || current_user.administrator? %>
+                  Add feedback to help this student learn:
+                <% else %>
+                  Reply to continue the discussion:
+                <% end %>
+              </label>
+              <textarea 
+                id="feedback-content-<%= response.id %>"
+                name="content" 
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                placeholder="<%= current_user.instructor? ? 'Share your insights, ask clarifying questions, or suggest areas for deeper exploration...' : 'Ask questions, share your thoughts, or respond to feedback...' %>"
+              ></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="text-xs text-gray-500">
+                <i class="fas fa-info-circle mr-1"></i>
+                This conversation helps build deeper understanding through dialogue
+              </div>
+              <button 
+                type="submit"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i class="fas fa-paper-plane mr-2"></i>
+                <% if current_user.instructor? || current_user.administrator? %>
+                  Add Feedback
+                <% else %>
+                  Send Reply
+                <% end %>
+              </button>
+            </div>
+          </form>
+        </div>
+      <% elsif response.feedback_count >= ResponseFeedback::MAX_FEEDBACK_PER_RESPONSE %>
+        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+          <p class="text-sm text-yellow-800">
+            <i class="fas fa-exclamation-triangle mr-1"></i>
+            This conversation has reached the maximum limit of <%= ResponseFeedback::MAX_FEEDBACK_PER_RESPONSE %> messages.
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+  <% elsif response.supports_feedback? && !response.has_feedback? && current_user == response.user %>
+    <!-- Empty state for students when no feedback yet -->
+    <div class="mt-6 pt-6 border-t border-gray-200">
+      <div class="text-center py-8">
+        <i class="fas fa-comments text-4xl text-gray-300 mb-4"></i>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">Awaiting Instructor Feedback</h4>
+        <p class="text-sm text-gray-500">Your instructor may provide feedback here to help guide your learning.</p>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+// Feedback form submission
+document.addEventListener('DOMContentLoaded', function() {
+  const feedbackForms = document.querySelectorAll('.feedback-form');
+  
+  feedbackForms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const responseId = form.dataset.responseId;
+      const content = form.querySelector('textarea').value.trim();
+      
+      if (!content) {
+        alert('Please enter some feedback before submitting.');
+        return;
+      }
+      
+      submitFeedback(responseId, content, form);
+    });
+  });
+});
+
+function submitFeedback(responseId, content, form) {
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalText = submitButton.innerHTML;
+  
+  // Show loading state
+  submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+  submitButton.disabled = true;
+  
+  fetch(`/responses/${responseId}/response_feedbacks`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    },
+    body: JSON.stringify({
+      response_feedback: {
+        content: content
+      }
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      // Clear form
+      form.querySelector('textarea').value = '';
+      
+      // Add new feedback message to thread
+      const thread = document.getElementById(`feedback-thread-${responseId}`);
+      thread.insertAdjacentHTML('beforeend', createFeedbackMessageHTML(data.feedback));
+      
+      // Update feedback count if provided
+      if (data.feedback_count) {
+        updateFeedbackCount(responseId, data.feedback_count);
+      }
+      
+      // Show success message
+      showFeedbackMessage('Feedback added successfully!', 'success');
+    } else {
+      showFeedbackMessage(data.errors ? data.errors.join(', ') : 'Failed to add feedback', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showFeedbackMessage('An error occurred while adding feedback', 'error');
+  })
+  .finally(() => {
+    // Restore button
+    submitButton.innerHTML = originalText;
+    submitButton.disabled = false;
+  });
+}
+
+function createFeedbackMessageHTML(feedback) {
+  const messageClass = feedback.from_student ? 'ml-8' : 'mr-8';
+  const roleColor = feedback.from_student ? 'bg-gray-100' : 'bg-blue-50';
+  
+  return `
+    <div class="feedback-message ${messageClass}">
+      <div class="${roleColor} rounded-lg p-4">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center">
+            <span class="font-medium text-gray-900">${feedback.user_name}</span>
+            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">
+              ${feedback.user_role}
+            </span>
+          </div>
+          <span class="text-xs text-gray-500">${feedback.created_at}</span>
+        </div>
+        <div class="text-gray-800 leading-relaxed">${feedback.content}</div>
+      </div>
+    </div>
+  `;
+}
+
+function updateFeedbackCount(responseId, count) {
+  const countElements = document.querySelectorAll(`[data-response-id="${responseId}"] .feedback-count`);
+  countElements.forEach(el => {
+    el.textContent = count === 1 ? '1 message' : `${count} messages`;
+  });
+}
+
+function markFeedbackAsRead(responseId) {
+  fetch(`/responses/${responseId}/response_feedbacks/mark_as_read`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      // Remove unread indicators
+      const unreadBadges = document.querySelectorAll(`[data-response-id="${responseId}"] .bg-red-100`);
+      unreadBadges.forEach(badge => badge.remove());
+      
+      // Hide "mark as read" button
+      const markReadBtn = document.querySelector(`button[onclick="markFeedbackAsRead(${responseId})"]`);
+      if (markReadBtn) markReadBtn.style.display = 'none';
+      
+      showFeedbackMessage('Marked as read', 'success');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showFeedbackMessage('Failed to mark as read', 'error');
+  });
+}
+
+function showFeedbackMessage(message, type) {
+  // Create and show a temporary message
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `fixed top-4 right-4 z-50 p-4 rounded-md shadow-lg ${
+    type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+  }`;
+  messageDiv.innerHTML = `
+    <div class="flex items-center">
+      <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  
+  document.body.appendChild(messageDiv);
+  
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.parentNode.removeChild(messageDiv);
+    }
+  }, 3000);
+}
+</script>

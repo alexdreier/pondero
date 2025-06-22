@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_21_172843) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_22_021724) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -138,6 +138,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_21_172843) do
     t.index ["section_id"], name: "index_questions_on_section_id"
   end
 
+  create_table "response_feedbacks", force: :cascade do |t|
+    t.bigint "response_id", null: false
+    t.bigint "user_id", null: false
+    t.text "content", null: false
+    t.boolean "read_by_student", default: false, null: false
+    t.integer "parent_id"
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["parent_id"], name: "index_response_feedbacks_on_parent_id"
+    t.index ["response_id", "position"], name: "index_response_feedbacks_on_response_id_and_position"
+    t.index ["response_id", "read_by_student"], name: "index_response_feedbacks_on_response_id_and_read_by_student"
+    t.index ["response_id"], name: "index_response_feedbacks_on_response_id"
+    t.index ["user_id"], name: "index_response_feedbacks_on_user_id"
+  end
+
   create_table "responses", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "question_id", null: false
@@ -147,6 +163,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_21_172843) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "journal_entry_id"
+    t.integer "feedback_count", default: 0, null: false
+    t.integer "unread_feedback_count", default: 0, null: false
+    t.datetime "last_feedback_at"
     t.index ["journal_entry_id", "question_id"], name: "index_responses_on_journal_entry_id_and_question_id", unique: true
     t.index ["journal_entry_id"], name: "index_responses_on_journal_entry_id"
     t.index ["question_id"], name: "index_responses_on_question_id"
@@ -188,6 +207,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_21_172843) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "lti_user_id"
+    t.boolean "notify_on_feedback", default: true, null: false
+    t.boolean "notify_on_feedback_reply", default: true, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["lti_user_id"], name: "index_users_on_lti_user_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -206,6 +227,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_21_172843) do
   add_foreign_key "journals", "users"
   add_foreign_key "questions", "journals"
   add_foreign_key "questions", "sections"
+  add_foreign_key "response_feedbacks", "responses"
+  add_foreign_key "response_feedbacks", "users"
   add_foreign_key "responses", "journal_entries"
   add_foreign_key "responses", "questions"
   add_foreign_key "responses", "users"
