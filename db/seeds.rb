@@ -387,13 +387,19 @@ other_students = learners.reject { |l| l.email == "learner@pondero.demo" }
 
 # For main demo student - only 1-2 partial responses to show authentic student experience
 if main_demo_student
+  # FIRST: Clear all existing data for demo student
+  puts "🧹 Cleaning demo student data..."
+  main_demo_student.responses.destroy_all
+  main_demo_student.journal_submissions.destroy_all
+  
   # Give demo student partial progress on just one journal (Weekly Learning Reflection)
   demo_journal = published_journals.find { |j| j.title == "Weekly Learning Reflection" }
   if demo_journal
-    submission = demo_journal.journal_submissions.find_or_create_by!(user: main_demo_student) do |sub|
-      sub.status = 'in_progress'
-      sub.completed_at = nil
-    end
+    submission = demo_journal.journal_submissions.create!(
+      user: main_demo_student,
+      status: 'in_progress',
+      completed_at: nil
+    )
 
     # Answer only first 2 questions to show partial progress
     demo_journal.questions.limit(2).each_with_index do |question, index|
@@ -422,13 +428,16 @@ if main_demo_student
 
       # Only create response if there's content
       if response_content.present?
-        Response.find_or_create_by!(user: main_demo_student, question: question) do |response|
-          response.content = response_content
-          response.status = 'draft'
-          response.submitted_at = nil
-        end
+        Response.create!(
+          user: main_demo_student,
+          question: question,
+          content: response_content,
+          status: 'draft',
+          submitted_at: nil
+        )
       end
     end
+    puts "✅ Demo student setup: #{main_demo_student.responses.count} responses created"
   end
 end
 
