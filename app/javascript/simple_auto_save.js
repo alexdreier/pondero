@@ -38,6 +38,8 @@ class SimpleAutoSave {
       'textarea',
       'input[type="text"]',
       'input[type="email"]',
+      'input[type="radio"]',
+      'input[type="checkbox"]',
       'select',
       '[data-auto-save="true"]',
       '.trix-editor'
