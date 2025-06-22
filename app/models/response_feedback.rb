@@ -84,7 +84,8 @@ class ResponseFeedback < ApplicationRecord
   end
   
   def update_response_counters
-    Response.reset_counters(response_id, :response_feedbacks)
+    # Manually update feedback count
+    response.update_column(:feedback_count, response.response_feedbacks.count)
     
     # Update unread count if this is from instructor
     if instructor? && !read_by_student
